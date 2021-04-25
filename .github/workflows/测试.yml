@@ -22,7 +22,17 @@ env:
 jobs:
   build:
     runs-on: ubuntu-20.04
+    name: Build for ${{ matrix.flippy_name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - flippy_name: 58
+            release_name: openwrt_s905d_n1_R21.4.18_k5.4.114-flippy-58+o.img
 
+    env:
+      FLIPPY_NAME: ${{ matrix.flippy_name }}   
+      RELEASE_NAME: ${{ matrix.release_name }}
     steps:
     - name: Checkout
       uses: actions/checkout@main
@@ -42,7 +52,12 @@ jobs:
         cd /opt/kernel
         
         wget  https://github.com/MXJNZ6/OpenWrt-CI/releases/download/$version/openwrt-armvirt-64-default-rootfs.tar.gz
-                            
+                
+    - name: Check Files
+      run: |
+        cd /opt/kernel
+        ls
+                
     - name: Install the package
       run: |
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
@@ -74,6 +89,11 @@ jobs:
 
         echo "::set-output name=status::success"
 
+    - name: Check Files4
+      run: |
+        cd /opt/kernel/tmp
+        ls
+
     - name: 编译后硬盘容量
       if: (!cancelled())
       run: df -hT
@@ -83,7 +103,6 @@ jobs:
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
         cd /opt/kernel/tmp
-        ls
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "::set-output name=status::success"
 
@@ -92,7 +111,7 @@ jobs:
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
         name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
-        path: ${{ env.FIRMWARE }}     
+        path: ${{ env.FIRMWARE }}      
 
     - name: Generate release tag
       id: tag
@@ -121,4 +140,3 @@ jobs:
         delete_tags: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
