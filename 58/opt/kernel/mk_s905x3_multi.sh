@@ -114,7 +114,7 @@ CPUFREQ_INIT="${PWD}/files/s905x3/cpufreq"
 FIP_HOME="${PWD}/files/meson_btld/with_fip/s905x3"
 UBOOT_WITH_FIP="${FIP_HOME}/x96maxplus-u-boot.bin.sd.bin"
 UBOOT_WITHOUT_FIP_HOME="${PWD}/files/meson_btld/without_fip"
-UBOOT_WITHOUT_FIP="u-boot-x96maxplus.bin"
+UBOOT_WITHOUT_FIP="u-boot-ugoos-x3.bin"
 
 # 20210208 add
 WIRELESS_CONFIG="${PWD}/files/s905x3/wireless"
@@ -323,6 +323,24 @@ FDT=/dtb/amlogic/meson-sm1-x96-max-plus-100m.dtb
 # 用于 H96 Max X3 (S905X3 网卡工作于 1000M) (超频至2208Mhz)
 #FDT=/dtb/amlogic/meson-sm1-h96-max-x3-oc.dtb
 
+# 用于 Ugoos X3 Cube/Pro/Pro (网卡工作于1000M)
+#FDT=/dtb/amlogic/meson-sm1-ugoos-x3.dtb
+
+# 用于 Ugoos X3 Cube/Pro/Pro (网卡工作于1000M) (超频至2208Mhz)
+#FDT=/dtb/amlogic/meson-sm1-ugoos-x3-oc.dtb
+
+# 用于 X96 air 千兆版
+#FDT=/dtb/amlogic/meson-sm1-x96-air-1000.dtb
+
+# 用于 X96 air 百兆版
+#FDT=/dtb/amlogic/meson-sm1-x96-air-100.dtb
+
+# 用于 A95XF3 air 千兆版
+#FDT=/dtb/amlogic/meson-sm1-a95xf3-air-1000.dtb
+
+# 用于 A95XF3 air 百兆版
+#FDT=/dtb/amlogic/meson-sm1-a95xf3-air-100.dtb
+
 APPEND=root=UUID=${ROOTFS_UUID} rootfstype=btrfs rootflags=compress=zstd console=ttyAML0,115200n8 console=tty0 no_console_suspend consoleblank=0 fsck.fix=yes fsck.repair=yes net.ifnames=0 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory swapaccount=1
 EOF
 
@@ -481,7 +499,7 @@ cat > ./etc/config/fstab <<EOF
 config global
         option anon_swap '0'
         option auto_swap '0'
-        option anon_mount '0'
+        option anon_mount '1'
         option auto_mount '1'
         option delay_root '5'
         option check_fs '0'
@@ -509,6 +527,8 @@ echo "/etc/config/fstab --->"
 cat ./etc/config/fstab
 
 [ -f ./etc/docker-init ] && rm -f ./etc/docker-init
+[ -f ./sbin/firstboot ] && rm -f ./sbin/firstboot
+[ -f ./sbin/jffs2reset ] && rm -f ./sbin/jffs2reset
 
 mkdir -p ./etc/modprobe.d
 cat > ./etc/modprobe.d/99-local.conf <<EOF
@@ -603,6 +623,8 @@ sed -e "s/macaddr=b8:27:eb:74:f2:6c/macaddr=${MACADDR}/" "brcmfmac43455-sdio.txt
 # HK1 Box 和 H96 Max X3 采用 bcm54339 wifi/bluetooth 模块
 get_random_mac
 sed -e "s/macaddr=00:90:4c:c5:12:38/macaddr=${MACADDR}/" "brcmfmac4339-sdio.ZP.txt" > "brcmfmac4339-sdio.amlogic,sm1.txt"
+get_random_mac
+sed -e "s/macaddr=b8:27:eb:74:f2:6c/macaddr=${MACADDR}/" "brcmfmac43455-sdio.txt" > "brcmfmac43455-sdio.amlogic,sm1.txt"
 
 rm -f ${TGT_ROOT}/etc/bench.log
 cat >> ${TGT_ROOT}/etc/crontabs/root << EOF

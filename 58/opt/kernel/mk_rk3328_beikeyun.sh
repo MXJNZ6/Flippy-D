@@ -208,7 +208,7 @@ ln -sf ./dtb-${KERNEL_VERSION}/rockchip/rk3328-beikeyun*.dtb .
 cat > armbianEnv.txt <<EOF
 verbosity=7
 overlay_prefix=rockchip
-rootdev=/dev/mmcblk0p2
+rootdev=UUID=${ROOTFS_UUID}
 rootfstype=btrfs
 rootflags=compress=zstd
 extraargs=usbcore.autosuspend=-1
@@ -406,6 +406,8 @@ EOF
 chattr +ia ./etc/config/fstab
 
 [ -f ./etc/docker-init ] && rm -f ./etc/docker-init
+[ -f ./sbin/firstboot ] && rm -f ./sbin/firstboot
+[ -f ./sbin/jffs2reset ] && rm -f ./sbin/jffs2reset
 
 rm -f ./etc/bench.log
 cat >> ./etc/crontabs/root << EOF

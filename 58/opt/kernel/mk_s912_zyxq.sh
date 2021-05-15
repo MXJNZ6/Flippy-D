@@ -455,7 +455,7 @@ cat > ./etc/config/fstab <<EOF
 config global
         option anon_swap '0'
         option auto_swap '0'
-        option anon_mount '0'
+        option anon_mount '1'
         option auto_mount '1'
         option delay_root '5'
         option check_fs '0'
@@ -483,6 +483,8 @@ echo "/etc/config/fstab --->"
 cat ./etc/config/fstab
 
 [ -f ./etc/docker-init ] && rm -f ./etc/docker-init
+[ -f ./sbin/firstboot ] && rm -f ./sbin/firstboot
+[ -f ./sbin/jffs2reset ] && rm -f ./sbin/jffs2reset
 
 mkdir -p ./etc/modprobe.d
 cat > ./etc/modprobe.d/99-local.conf <<EOF

@@ -89,8 +89,9 @@ SSL_CNF_PATCH="${PWD}/files/vplus/openssl_engine.patch"
 # 20201212 add
 BAL_CONFIG="${PWD}/files/vplus/balance_irq"
 
-# 20210225 add
-UBOOT_BIN="${PWD}/files/vplus/u-boot-v2020.10/u-boot-sunxi-with-spl.bin"
+# 20210424 modify
+UBOOT_BIN="${PWD}/files/vplus/u-boot-v2021.04/u-boot-sunxi-with-spl.bin"
+WRITE_UBOOT_SCRIPT="${PWD}/files/vplus/u-boot-v2021.04/update-u-boot.sh"
 
 # 20210307 add
 SS_LIB="${PWD}/files/ss-glibc/lib-glibc.tar.xz"
@@ -368,7 +369,7 @@ cat > ./etc/config/fstab <<EOF
 config global
         option anon_swap '0'
         option auto_swap '0'
-        option anon_mount '0'
+        option anon_mount '1'
         option auto_mount '1'
         option delay_root '5'
         option check_fs '0'
@@ -395,6 +396,8 @@ EOF
 chattr +ia ./etc/config/fstab
 
 [ -f ./etc/docker-init ] && rm -f ./etc/docker-init
+[ -f ./sbin/firstboot ] && rm -f ./sbin/firstboot
+[ -f ./sbin/jffs2reset ] && rm -f ./sbin/jffs2reset
 
 # 写入版本信息
 cat > ./etc/flippy-openwrt-release <<EOF
@@ -439,6 +442,8 @@ cd $TGT_ROOT/usr/lib/lua/luci/view/admin_status && \
 patch -p0 < ${CPUSTAT_PATCH} 
 
 if [ -f ${UBOOT_BIN} ];then
+    mkdir -p $TGT_ROOT/lib/u-boot && cp -v ${UBOOT_BIN} $TGT_ROOT/lib/u-boot
+    cp -v ${WRITE_UBOOT_SCRIPT} ${TGT_ROOT}/lib/u-boot
     echo "写入 bootloader ..."
     echo "dd if=${UBOOT_BIN} of=${TGT_DEV} bs=1024 seek=8"
     dd if="${UBOOT_BIN}" of="${TGT_DEV}" bs=1024 seek=8

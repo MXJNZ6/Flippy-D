@@ -459,7 +459,7 @@ cat > ./etc/config/fstab <<EOF
 config global
         option anon_swap '0'
         option auto_swap '0'
-        option anon_mount '0'
+        option anon_mount '1'
         option auto_mount '1'
         option delay_root '5'
         option check_fs '0'
@@ -487,6 +487,8 @@ echo "/etc/config/fstab --->"
 cat ./etc/config/fstab
 
 [ -f ./etc/docker-init ] && rm -f ./etc/docker-init
+[ -f ./sbin/firstboot ] && rm -f ./sbin/firstboot
+[ -f ./sbin/jffs2reset ] && rm -f ./sbin/jffs2reset
 
 mkdir -p ./etc/modprobe.d
 cat > ./etc/modprobe.d/99-local.conf <<EOF
@@ -509,7 +511,7 @@ done
 
 # 在高版本内核下， wifi模块目前问题太多，禁用
 #if [ $K510 -eq 1 ];then
-#    mv -f ./etc/modules.d/brcm*  ./etc/modules.d.remove/ 2>/dev/null
+    mv -f ./etc/modules.d/brcm*  ./etc/modules.d.remove/ 2>/dev/null
 #fi
 
 # 默认禁用sfe
