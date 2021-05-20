@@ -6,4 +6,4 @@ Flippy's openwrt packaged source code
 3. 下载tar.gz的需要解压 time pigz -p 2 -d N1-58+o.tar.gz
 4. ./update-amlogic-openwrt.sh    xxxxx.img
 5. 比如 ./update-amlogic-openwrt.sh
-  openwrt_s905d_n1_R21.5.12_k5.4.119-flippy-59+o.img
+  openwrt_s905d_n1_R21.5.12_k5.4.120-flippy-59+o.img
