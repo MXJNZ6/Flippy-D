@@ -162,6 +162,9 @@ mkdir $TGT_BOOT $TGT_ROOT
 mount -t ext4 ${TGT_DEV}p1 $TGT_BOOT
 mount -t btrfs -o compress=zstd ${TGT_DEV}p2 $TGT_ROOT
 
+echo "创建 /etc 子卷 ..."
+btrfs subvolume create $TGT_ROOT/etc
+
 # extract root
 echo "openwrt 根文件系统解包 ... "
 (
@@ -366,6 +369,16 @@ config share
 EOF
 fi
 
+# for openclash
+if [ -d ./etc/openclash/core ];then
+    (
+        mkdir -p ./usr/share/openclash/core && \
+	cd ./etc/openclash && \
+	mv core ../../usr/share/openclash/ && \
+	ln -s ../../usr/share/openclash/core .
+    )
+fi
+
 chmod 755 ./etc/init.d/*
 
 sed -e "s/option wan_mode 'false'/option wan_mode 'true'/" -i ./etc/config/dockerman 2>/dev/null
@@ -403,10 +416,6 @@ config mount
 	option fstype 'ext4'
 
 EOF
-
-# 2021.04.01添加
-# 强制锁定fstab,防止用户擅自修改挂载点
-chattr +ia ./etc/config/fstab
 
 [ -f ./etc/docker-init ] && rm -f ./etc/docker-init
 [ -f ./sbin/firstboot ] && rm -f ./sbin/firstboot
@@ -447,14 +456,16 @@ fi
 cd $TGT_ROOT/usr/lib/lua/luci/view/admin_status && \
 patch -p0 < ${CPUSTAT_PATCH} 
 
+# 创建 /etc 初始快照
+echo "创建初始快照: /etc -> /.snapshots/etc-000"
+cd $TGT_ROOT && \
+mkdir -p .snapshots && \
+btrfs subvolume snapshot -r etc .snapshots/etc-000
 
-# make new rootfs tgz
-#echo
-#echo
-# echo "package new root archive ..."
-# cd $TGT_ROOT
-# TGT_ROOT_TGZ="${WORK_DIR}/L1-Pro_Openwrt_${OPENWRT_VER}_k${KERNEL_VERSION}_rootfs.tar.gz"
-# tar cvf - . | pigz -9 > $TGT_ROOT_TGZ
+# 2021.04.01添加
+# 强制锁定fstab,防止用户擅自修改挂载点
+# 开启了快照功能之后，不再需要锁定fstab
+#chattr +ia ./etc/config/fstab
 
 # clean temp_dir
 cd $TEMP_DIR
