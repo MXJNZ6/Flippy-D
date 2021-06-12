@@ -1,5 +1,3 @@
-  # Trigger the workflow on push or pull request,
-  # but only for the main branch
 name: Build N1
 
 on:
