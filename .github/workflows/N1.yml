@@ -2,16 +2,6 @@ name: Build N1
 
 on:
   repository_dispatch:
-  workflow_dispatch:
-    inputs:
-      days:
-        description: 'Number of days.'
-        required: true
-        default: 3
-      minimum_runs:
-        description: 'The minimum runs to keep for each workflow.'
-        required: true
-        default: 2
   schedule:
     - cron: 30 7 4/3,1 * *
     
@@ -23,14 +13,14 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-18.04
     name: Build for ${{ matrix.flippy_name }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - flippy_name: 59
-            release_name: N1-59+o.img
+          - flippy_name: 60
+            release_name: N1-60+o.img
 
     env:
       FLIPPY_NAME: ${{ matrix.flippy_name }}   
