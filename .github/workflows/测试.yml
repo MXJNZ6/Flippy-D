@@ -28,7 +28,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - flippy_name: 60+o
+          - flippy_name: 60
             release_name: N1-60+o.img
 
     env:
