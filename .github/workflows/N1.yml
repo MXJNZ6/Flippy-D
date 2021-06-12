@@ -1,8 +1,8 @@
-on:
   # Trigger the workflow on push or pull request,
   # but only for the main branch
 name: Build N1
 
+on:
   repository_dispatch:
     workflow_dispatch:
     inputs:
