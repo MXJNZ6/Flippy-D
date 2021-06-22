@@ -55,6 +55,7 @@ REGULATORY_DB="${PWD}/files/regulatory.db.tar.gz"
 CPUSTAT_SCRIPT="${PWD}/files/cpustat"
 CPUSTAT_SCRIPT_PY="${PWD}/files/cpustat.py"
 CPUSTAT_PATCH="${PWD}/files/luci-admin-status-index-html.patch"
+CPUSTAT_PATCH_02="${PWD}/files/luci-admin-status-index-html-02.patch"
 GETCPU_SCRIPT="${PWD}/files/getcpu"
 KMOD="${PWD}/files/kmod"
 KMOD_BLACKLIST="${PWD}/files/vplus/kmod_blacklist"
@@ -263,7 +264,7 @@ if [ -x usr/bin/perl ];then
 else
 	[ -f $CPUSTAT_SCRIPT_PY ] && cp $CPUSTAT_SCRIPT_PY usr/bin/cpustat && chmod 755 usr/bin/cpustat
 fi
-[ -f $TTYD ] && cp $TTYD etc/init.d/
+#[ -f $TTYD ] && cp $TTYD etc/init.d/
 [ -f $FLIPPY ] && cp $FLIPPY usr/sbin/
 if [ -f $BANNER ];then
     cp -f $BANNER etc/banner
@@ -409,7 +410,7 @@ EOF
 
 [ -f ./etc/docker-init ] && rm -f ./etc/docker-init
 [ -f ./sbin/firstboot ] && rm -f ./sbin/firstboot
-[ -f ./sbin/jffs2reset ] && rm -f ./sbin/jffs2reset
+[ -f ./sbin/jffs2reset ] && rm -f ./sbin/jffs2reset ./sbin/jffs2mark
 [ -f ./www/DockerReadme.pdf ] && [ -f ${DOCKER_README} ] && cp -fv ${DOCKER_README} ./www/DockerReadme.pdf
 
 # 写入版本信息
@@ -442,7 +443,11 @@ ln -sf kmod lsmod
 ln -sf kmod modinfo
 ln -sf kmod modprobe
 ln -sf kmod rmmod
-ln -sf /usr/bin/ntfs-3g mount.ntfs
+if [ -f mount.ntfs3 ];then
+    ln -sf mount.ntfs3 mount.ntfs
+elif [ -f ../usr/bin/ntfs-3g ];then
+    ln -sf /usr/bin/ntfs-3g mount.ntfs
+fi
 
 cd $TGT_ROOT/lib/firmware
 mv *.hcd brcm/ 2>/dev/null
@@ -451,6 +456,7 @@ if [ -f "$REGULATORY_DB" ];then
 fi
 
 [ -f $CPUSTAT_PATCH ] && cd $TGT_ROOT && patch -p1 < ${CPUSTAT_PATCH}
+[ -x "${TGT_ROOT}/usr/bin/perl" ] && [ -f "${CPUSTAT_PATCH_02}" ] && cd ${TGT_ROOT} && patch -p1 < ${CPUSTAT_PATCH_02}
 
 if [ -f ${UBOOT_BIN} ];then
     mkdir -p $TGT_ROOT/lib/u-boot && cp -v ${UBOOT_BIN} $TGT_ROOT/lib/u-boot
