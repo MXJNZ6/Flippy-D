@@ -86,7 +86,8 @@ jobs:
       run: |
         sudo chmod -R 777 /opt/kernel/tmp
         cd /opt/kernel/tmp
-        sudo time tar -cvf - openwrt_s905d_n1_R21.6.14_k5.4.127-flippy-61+o.img/ | pigz -p 2 > N1-61+o.tar.gz
+        sudo pigz -9 $RELEASE_NAME
+        #sudo time tar -cvf - openwrt_s905d_n1_R21.6.14_k5.4.127-flippy-61+o.img/ | pigz -p 2 > N1-61+o.tar.gz
 
         echo "::set-output name=status::success"
 
@@ -98,28 +99,6 @@ jobs:
     - name: 编译后硬盘容量
       if: (!cancelled())
       run: df -hT
-      
-    - name: Create release
-      id: release
-      uses: ncipollo/release-action@v1
-      with:
-        name: ${{ env.DATE }} 🚀 N1-Openwrt-img | 编译
-        allowUpdates: true
-        tag: ${{ env.version }}
-        commit: main
-        token: ${{ secrets.RELEASES_TOKEN }}
-        body: |
-          ## 以下为N1最新固件
-          默认IP：192.168.2.3 默认密码： password
-          Openwrt🚀
-          N1在线升级方法：
-             1. cd /mnt/mmcblk2p4
-             2. wget 升级脚本链接,鼠标右击后缀.sh文件获取链接地址
-             3. wget 压缩包或者固件链接,鼠标右击文件获取链接地址
-             4. gzip -d 解压缩上一步下载的固件全名
-             5. chmod +x *.sh
-             6. ./升级脚本名字 img固件名
-        artifacts: "/opt/kernel/tmp/*"   
       
     - name: Organize files
       id: organize
