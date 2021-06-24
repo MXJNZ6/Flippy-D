@@ -86,7 +86,7 @@ jobs:
       run: |
         sudo chmod -R 777 /opt/kernel/tmp
         cd /opt/kernel/tmp
-        sudo time tar -cvf - openwrt_s905d_n1_R21.6.14_k5.4.127-flippy-61+o.img/ | pigz -p 2 > N1-61+o.tar.gz
+        sudo time tar -cvf - openwrt_s905d_n1_R21.6.22_k5.4.128-flippy-61+o.img/ | pigz -p 2 > N1-61+o.tar.gz
 
         echo "::set-output name=status::success"
 
