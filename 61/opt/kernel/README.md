@@ -31,13 +31,14 @@
        Languages -> Perl               
                     ->  perl-http-date
                     ->  perlbase-getopt
-                    ->  perlbase-time
+                    ->  perlbase-time(自动选择)
                     ->  perlbase-unicode                              
-                    ->  perlbase-utf8        
-       Utilities -> Disc -> blkid、fdisk、lsblk、parted            
-                 -> Filesystem -> attr、btrfs-progs(Build with zstd support)、chattr、dosfstools、
-                                  e2fsprogs、f2fs-tools、f2fsck、lsattr、mkf2fs、xfs-fsck、xfs-mkfs    
-                 -> Shells  ->  bash         
+                    ->  perlbase-utf8(自动选择)        
+       Utilities -> Disc -> blkid(自动选择)、fdisk(自动选择)、lsblk(自动选择)、parted(自动选择)            
+                 -> Filesystem -> attr(自动选择)、btrfs-progs(Build with zstd support)、chattr、dosfstools、
+                                  e2fsprogs(自动选择)、f2fs-tools、f2fsck(自动选择)、lsattr、mkf2fs(自动选择)、
+                                  xfs-fsck、xfs-mkfs    
+                 -> Shells  ->  bash(自动选择)         
                  -> gawk、getopt、losetup、tar、uuidgen
 
         * (可选)Wifi基础包：
@@ -45,13 +46,13 @@
         *     因为打包源码中已经包含了来自Armbian的firmware，
         *     会自动覆盖openwrt rootfs中已有的firmware
         Kernel modules  ->   Wireless Drivers -> kmod-brcmfmac(SDIO) 
-                                              -> kmod-brcmutil
-                                              -> kmod-cfg80211
+                                              -> kmod-brcmutil(自动选择)
+                                              -> kmod-cfg80211(自动选择)
                                               -> kmod-mac80211
-        Network  ->  WirelessAPD -> hostpad-common
+        Network  ->  WirelessAPD -> hostpad-common(自动选择)
                                  -> wpa-cli
                                  -> wpad-basic
-                 ->  iw
+                 ->  iw(自动选择)
        
     
     除上述必选项以外的软件包可以按需自主选择。
