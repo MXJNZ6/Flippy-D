@@ -287,6 +287,9 @@ if [ -f $FIX_CPU_FREQ ];then
     cp -v $FIX_CPU_FREQ usr/sbin
     chmod 755 usr/sbin/fixcpufreq.pl
 fi
+if [ -f etc/config/cpufreq ];then
+    sed -e "s/ondemand/schedutil/" -i etc/config/cpufreq
+fi
 if [ -f $SYSFIXTIME_PATCH ];then
     patch -p1 < $SYSFIXTIME_PATCH
 fi
@@ -316,7 +319,7 @@ for mod in $mod_blacklist ;do
 done
 [ -f ./etc/modules.d/usb-net-asix-ax88179 ] || echo "ax88179_178a" > ./etc/modules.d/usb-net-asix-ax88179
 if echo $KERNEL_VERSION | grep -E '*\+$' ;then
-	echo "r8152_v2" > ./etc/modules.d/usb-net-rtl8152
+	echo "r8152" > ./etc/modules.d/usb-net-rtl8152
 else
 	echo "r8152" > ./etc/modules.d/usb-net-rtl8152
 fi
