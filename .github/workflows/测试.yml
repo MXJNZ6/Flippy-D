@@ -10,7 +10,7 @@ on:
       minimum_runs:
         description: 'The minimum runs to keep for each workflow.'
         required: true
-        default: 2
+        default: 1
   schedule:
     - cron: 0 23 * * *      
 env:
@@ -141,6 +141,12 @@ jobs:
         tag_name: ${{ steps.tag.outputs.release_tag }}
         body_path: release.txt
         files: ${{ env.FIRMWARE }}/*
+        
+    - name: Delete workflow runs
+      uses: GitRML/delete-workflow-runs@main
+      with:
+        retain_days: 1
+        keep_minimum_runs: 1
         
     - name: Remove old Releases
       uses: dev-drprasad/delete-older-releases@v0.1.0
