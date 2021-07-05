@@ -84,7 +84,7 @@ jobs:
       run: |
         sudo chmod -R 777 /opt/kernel/tmp
         cd /opt/kernel/tmp
-        sudo tar -cvf - *.img | pigz -9 2 > N1-61+o.tar.gz
+        sudo pigz -9 -p 2 -r
         
         echo "::set-output name=status::success"
 
