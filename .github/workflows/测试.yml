@@ -84,7 +84,7 @@ jobs:
       run: |
         sudo chmod -R 777 /opt/kernel/tmp
         cd /opt/kernel/tmp
-        sudo pigz -9 -p 2 -r
+        sudo pigz -9 -p 2 -r -k *
         
         echo "::set-output name=status::success"
 
