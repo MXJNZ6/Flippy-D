@@ -65,11 +65,6 @@ jobs:
         sudo chmod +x *.sh
         sudo ./mk_s905d_n1.sh
         
-    - name: copy update files
-      run: |
-        cd /opt/kernel
-        sudo cp files/update-amlogic-openwrt.sh tmp/update-amlogic-openwrt.sh
-        
     - name: pigz -9
       id: pigz
       run: |
@@ -78,6 +73,11 @@ jobs:
         sudo pigz -9 -p 2 -k *
         
         echo "::set-output name=status::success"
+                
+    - name: copy update files
+      run: |
+        cd /opt/kernel
+        sudo cp files/update-amlogic-openwrt.sh tmp/update-amlogic-openwrt.sh
 
     - name: Check Files4
       run: |
