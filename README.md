@@ -2,6 +2,4 @@
 1. cd /mnt/mmcblk2p4
 2. wget img或者tar.gz右键复制的下载连接
 3. 下载.gz的需要解压 gzip -dv o[tab]
-4. ./update-amlogic-openwrt.sh    xxxxx.img
-5. 比如 ./update-amlogic-openwrt.sh
-  openwrt_s905d_n1_R21.6.1_k5.4.125-flippy-60+o.img
+4. ./update-amlogic-openwrt.sh o[tab]
