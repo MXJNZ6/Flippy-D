@@ -113,15 +113,22 @@ jobs:
         [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
         echo "::set-output name=status::success"
         
-    - name: Upload firmware to release
+    - name: Upload OpenWrt Firmware to Release
       uses: softprops/action-gh-release@v1
-      if: steps.tag.outputs.status == 'success' && !cancelled()
+      if: steps.build.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.tag.outputs.release_tag }}
-        body_path: release.txt
+        tag_name: openwrt_s905d_lede ${{ steps.tag.outputs.release_tag }}
         files: ${{ env.FIRMWARE }}/*
+        body: |
+          This is OpenWrt firmware for N1
+          * Firmware information
+          Default IP: 192.168.2.3
+          Default username: root
+          Default password: password
+          Default WIFI name: OpenWrt
+          Default WIFI password: none
         
     - name: Delete workflow runs
       uses: GitRML/delete-workflow-runs@main
