@@ -20,9 +20,11 @@ jobs:
       matrix:
         include:
           - flippy_name: 61
+            release_name: openwrt_s905d_n1-61+o.img
 
     env:
       FLIPPY_NAME: ${{ matrix.flippy_name }}   
+      RELEASE_NAME: ${{ matrix.release_name }}
     steps:
     - name: Checkout
       uses: actions/checkout@main
