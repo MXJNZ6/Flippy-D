@@ -103,32 +103,29 @@ jobs:
         name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE }}
         
-    - name: Generate release tag
-      id: tag
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-      run: |
-        echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
-        touch release.txt
-        [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
-        [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
-        echo "::set-output name=status::success"
-        
-    - name: Upload OpenWrt Firmware to Release
-      uses: softprops/action-gh-release@v1
-      if: steps.build.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Create release
+      id: release
+      uses: ncipollo/release-action@v1
       with:
-        tag_name: openwrt_s905d_lede ${{ steps.tag.outputs.release_tag }}
-        files: ${{ env.FIRMWARE }}/*
+        name: ${{ env.DATE }} 🚀 N1/ hk1-Openwrt-img | 编译
+        allowUpdates: true
+        tag: ${{ env.version }}
+        commit: main
+        token: ${{ secrets.RELEASES_TOKEN }}
         body: |
-          This is OpenWrt firmware for N1
-          * Firmware information
-          Default IP: 192.168.2.3
-          Default username: root
-          Default password: password
-          Default WIFI name: OpenWrt
-          Default WIFI password: none
+          默认IP：192.168.2.3 默认密码： password
+          Openwrt🚀
+          N1全新安装方法：
+             1. cd root
+             2. ./install-to-emmc.sh
+          N1在线升级方法：
+             1. cd /mnt/mmcblk2p4
+             2. wget 升级脚本链接,鼠标右击后缀.sh文件获取链接地址
+             3. wget img.gz后缀名的固件链接,鼠标右击后缀.img.gz文件获取链接地址
+             4. gzip -d 解压缩上一步下载的固件全名
+             5. chmod +x *.sh
+             6. ./升级脚本名字 img固件名
+        artifacts: "/opt/kernel/tmp/*"
         
     - name: Delete workflow runs
       uses: GitRML/delete-workflow-runs@main
