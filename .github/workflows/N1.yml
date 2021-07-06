@@ -109,9 +109,9 @@ jobs:
       id: release
       uses: ncipollo/release-action@v1
       with:
-        name: ${{ env.DATE }} 🚀 N1/ hk1-Openwrt-img | 编译
+        name: 🚀 N1/ hk1-Openwrt-img | 编译
         allowUpdates: true
-        tag: ${{ env.version }}
+        tag: ${{ matrix.release_name }}
         commit: main
         token: ${{ secrets.RELEASES_TOKEN }}
         body: |
