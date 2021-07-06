@@ -10,6 +10,7 @@ env:
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
+  FILE_NAME: s905d_n1
 
 jobs:
   build:
@@ -105,14 +106,15 @@ jobs:
         name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE }}
         
-    - name: Upload OpenWrt Firmware to Release
-      uses: softprops/action-gh-release@v1
-      if: steps.build.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
-      env:
-        GITHUB_TOKEN: ${{ secrets.RELEASES_TOKEN }}
+    - name: Create release
+      id: release
+      uses: ncipollo/release-action@v1
       with:
-        tag_name: openwrt_s905d_n1_${{ steps.tag.outputs.release_tag }}
-        files: ${{ env.FIRMWARE }}/*
+        name: R${{ env.DATE }} for ${{ env.FILE_NAME }}
+        allowUpdates: true
+        tag: ${{ env.FILE_NAME }}
+        commit: master
+        token: ${{ secrets.RELEASES_TOKEN }}
         body: |
           This is OpenWrt firmware for N1
           * Firmware information
@@ -121,6 +123,7 @@ jobs:
           Default password: password
           Default WIFI name: OpenWrt
           Default WIFI password: none
+        artifacts: ${{ env.FIRMWARE }}/*
         
     - name: Delete workflow runs
       uses: GitRML/delete-workflow-runs@main
