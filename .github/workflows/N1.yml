@@ -6,10 +6,11 @@ on:
     - cron: 0 23 * * *      
 env:
   UPLOAD_COWTRANSFER: false
+  UPLOAD_WERANSFER: true
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
-  RELEASE: true
   TZ: Asia/Shanghai
+  FILE_NAME: s905d_n1
 
 jobs:
   build:
@@ -20,9 +21,11 @@ jobs:
       matrix:
         include:
           - flippy_name: 61
+            release_name: openwrt_s905d_n1-61+o.img
 
     env:
       FLIPPY_NAME: ${{ matrix.flippy_name }}   
+      RELEASE_NAME: ${{ matrix.release_name }}
     steps:
     - name: Checkout
       uses: actions/checkout@main
@@ -65,11 +68,6 @@ jobs:
         sudo chmod +x *.sh
         sudo ./mk_s905d_n1.sh
         
-    - name: copy update files
-      run: |
-        cd /opt/kernel
-        sudo cp files/update-amlogic-openwrt.sh tmp/update-amlogic-openwrt.sh
-        
     - name: pigz -9
       id: pigz
       run: |
@@ -78,6 +76,11 @@ jobs:
         sudo pigz -9 -p 2 -k *
         
         echo "::set-output name=status::success"
+                
+    - name: copy update files
+      run: |
+        cd /opt/kernel
+        sudo cp files/update-amlogic-openwrt.sh tmp/update-amlogic-openwrt.sh
 
     - name: Check Files4
       run: |
@@ -103,25 +106,24 @@ jobs:
         name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE }}
         
-    - name: Generate release tag
-      id: tag
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-      run: |
-        echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
-        touch release.txt
-        [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
-        [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
-        echo "::set-output name=status::success"
-        
-    - name: Upload firmware to release
-      uses: softprops/action-gh-release@v1
-      if: steps.tag.outputs.status == 'success' && !cancelled()
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Create release
+      id: release
+      uses: ncipollo/release-action@v1
       with:
-        tag_name: ${{ steps.tag.outputs.release_tag }}
-        body_path: release.txt
-        files: ${{ env.FIRMWARE }}/*
+        name: R${{ env.DATE }} for ${{ env.FILE_NAME }}
+        allowUpdates: true
+        tag: ${{ env.FILE_NAME }}
+        commit: master
+        token: ${{ secrets.RELEASES_TOKEN }}
+        body: |
+          This is OpenWrt firmware for N1
+          * Firmware information
+          Default IP: 192.168.2.3
+          Default username: root
+          Default password: password
+          Default WIFI name: OpenWrt
+          Default WIFI password: none
+        artifacts: ${{ env.FIRMWARE }}/*
         
     - name: Delete workflow runs
       uses: GitRML/delete-workflow-runs@main
