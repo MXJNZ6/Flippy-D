@@ -21,11 +21,11 @@ jobs:
       matrix:
         include:
           - flippy_name: 61+o
-            release_name: openwrt_s905d_n1-61+o.img
+            release_name: openwrt_s905d_n1_k5.4-61+o.img
           - flippy_name: 61+
-            release_name: openwrt_s905d_n1-61+.img
+            release_name: openwrt_s905d_n1_k5.10-61+.img
           - flippy_name: 61++
-            release_name: openwrt_s905d_n1-61++.img
+            release_name: openwrt_s905d_n1_k5.12-61++.img
 
     env:
       FLIPPY_NAME: ${{ matrix.flippy_name }}   
