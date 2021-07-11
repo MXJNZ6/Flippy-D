@@ -2,7 +2,8 @@
 1. cd /mnt/mmcblk2p4
 2. wget img或者tar.gz右键复制的下载连接
 3. 下载.gz的需要解压 gzip -dv o[tab]
-4. ./update-amlogic-openwrt.sh o[tab]
+4. chmod 755 update-amlogic-openwrt.sh
+5. ./update-amlogic-openwrt.sh o[tab]
 
 这是 Flippy 的 Openwrt 打包源码，主要用于制作 Phicomm N1、贝壳云、我家云、微加云、Amlogic S905x3、Amlogic S922x等一系列盒子的 openwrt固件。
 
