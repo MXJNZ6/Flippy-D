@@ -10,7 +10,7 @@ env:
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
-  FILE_NAME: s905d_n1
+  FILE_NAME: openwrt_s905d_n1-lean&&flippy&&lienol
 
 jobs:
   build:
@@ -25,7 +25,9 @@ jobs:
           - flippy_name: 61+
             release_name: openwrt_s905d_n1_k5.10-61+.img
           - flippy_name: 61++
-            release_name: openwrt_s905d_n1_k5.12-61++.img
+            release_name: openwrt_s905d_n1_k5.12-61+plus.img
+          - flippy_name: 62++
+            release_name: openwrt_s905d_n1_k5.13-62+plus.img
 
     env:
       FLIPPY_NAME: ${{ matrix.flippy_name }}   
@@ -127,6 +129,11 @@ jobs:
           Default password: password
           Default WIFI name: OpenWrt
           Default WIFI password: none
+          1. cd /mnt/mmcblk2p4
+          2. wget img或者tar.gz右键复制的下载连接
+          3. 下载.gz的需要解压 gzip -dv o[tab]
+          4. chmod 755 update-amlogic-openwrt.sh
+          5. ./update-amlogic-openwrt.sh o[tab]
         artifacts: ${{ env.FIRMWARE }}/*
         
     - name: Delete workflow runs
