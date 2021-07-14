@@ -7,30 +7,7 @@
 4. chmod 755 update-amlogic-openwrt.sh
 5. ./update-amlogic-openwrt.sh o[tab]
 
-这是 Flippy 的 Openwrt 打包源码，主要用于制作 Phicomm N1、贝壳云、我家云、微加云、Amlogic S905x3、Amlogic S922x等一系列盒子的 openwrt固件。
-
-一、制作材料：
-1. Flippy预编译好的 Arm64 内核 (在 https://t.me/openwrt_flippy  及 https://pan.baidu.com/s/19KNVcCQL57mvpiboFc-5rA 提取码：hk6x )
-2. 自己编译的 openwrt rootfs tar.gz 包： openwrt-armvirt-64-default-rootfs.tar.gz 
-
-二、环境准备
-1. 需要一台 linux 主机， 可以是 x86或arm64架构，可以是物理机或虚拟机（但不支持win10自带的linux环境），需要具备root权限， 并且具备以下基本命令（只列出命令名，不列出命令所在的包名，因不同linux发行版的软件包名、软件包安装命令各有不同，请自己查询)： 
-    losetup、lsblk(版本>=2.33)、blkid、uuidgen、fdisk、parted、mkfs.vfat、mkfs.ext4、mkfs.btrfs (列表不一定完整，打包过程中若发生错误，请自行检查输出结果并添加缺失的命令）
-    
-2. 需要把 Flippy预编译好的 Arm64 内核上传至 /opt/kernel目录（目录需要自己创建）
-3. cd  /opt   
-   git clone https://github.com/unifreq/openwrt_packit     
-4. 把编译好的 openwrt-armvirt-64-default-rootfs.tar.gz 上传至 /opt/openwrt_packit目录中
-5. cd /opt/openwrt_packit
-
-   ./mk_xxx.sh  # xxx指代你想要生成的固件类别，例如： ./mk_s905d_n1.sh 表示生成 Phicomm N1所用的固件
-
-   生成好的固件是 .img 格式， 存放在 /opt/openwrt_packit/tmp目录中，下载刷机即可
-
-   相关的在线升级脚本在 files/目录下
-
-   相关的 openwrt 示例配置文件在 files/openwrt_config_demo/目录下
-6. openwrt rootfs 编译注意事项：
+openwrt rootfs 编译注意事项：
 
        Target System  ->  QEMU ARM Virtual Machine 
        Subtarget ->  QEMU ARMv8 Virtual Machine (cortex-a53)
@@ -61,3 +38,10 @@
                                  -> wpa-cli
                                  -> wpad-basic
                  ->  iw
+
+![1](https://user-images.githubusercontent.com/53927877/125562671-88397075-461e-4faa-b27e-164899ddd3fa.JPG)
+![2](https://user-images.githubusercontent.com/53927877/125562684-0dd6aedd-6924-496f-95e3-f9aa32e0a61a.JPG)
+![3](https://user-images.githubusercontent.com/53927877/125562696-2a47311f-6077-4a29-b3f9-07b3bfd01f69.JPG)
+![4](https://user-images.githubusercontent.com/53927877/125562707-031b92de-ac69-432d-a27a-bd263e1f1ed4.JPG)
+![5](https://user-images.githubusercontent.com/53927877/125562716-7ac6b995-8d4d-4c66-93f6-121872177c12.JPG)
+![6](https://user-images.githubusercontent.com/53927877/125562722-e6cf1ad4-3c4a-4372-8332-c1792bc902f8.JPG)
