@@ -6,6 +6,7 @@
 3. 下载.gz的需要解压 gzip -dv o[tab]
 4. chmod 755 update-amlogic-openwrt.sh
 5. ./update-amlogic-openwrt.sh o[tab]
+快照功能:ssh链接后输入/usr/sbin/flippy
 
 openwrt rootfs 编译注意事项：
 
