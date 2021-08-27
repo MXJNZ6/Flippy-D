@@ -13,6 +13,10 @@ source make.env
 SOC=s905d
 BOARD=n1
 
+# 让N1一直有wifi可用，以减少抱怨
+# 5.10(及以上)内核是否启用wifi  1:启用 0:禁用
+ENABLE_WIFI_K510=1
+
 SUBVER=$1
 
 MODULES_TGZ=${KERNEL_PKG_HOME}/modules-${KERNEL_VERSION}.tar.gz
@@ -35,15 +39,6 @@ fi
 # Openwrt root 源文件
 OP_ROOT_TGZ="openwrt-armvirt-64-default-rootfs.tar.gz"
 OPWRT_ROOTFS_GZ="${PWD}/${OP_ROOT_TGZ}"
-if [ $SFE_FLAG -eq 1 ];then
-    if [ -f "${PWD}/sfe/${OP_ROOT_TGZ}" ];then
-        OPWRT_ROOTFS_GZ="${PWD}/sfe/${OP_ROOT_TGZ}"
-    fi
-elif [ ${FLOWOFFLOAD_FLAG} -eq 1 ];then
-    if [ -f "${PWD}/flowoffload/${OP_ROOT_TGZ}" ];then
-        OPWRT_ROOTFS_GZ="${PWD}/flowoffload/${OP_ROOT_TGZ}"
-    fi
-fi
 echo "Use $OPWRT_ROOTFS_GZ as openwrt rootfs!"
 
 # 目标镜像文件
@@ -545,7 +540,9 @@ alias pwm pwm_meson
 alias wifi brcmfmac
 EOF
 
-# echo br_netfilter > ./etc/modules.d/br_netfilter
+sed -e "s/option sw_flow '1'/option sw_flow '${SW_FLOWOFFLOAD}'/" -i ./etc/config/turboacc
+sed -e "s/option hw_flow '1'/option hw_flow '${HW_FLOWOFFLOAD}'/" -i ./etc/config/turboacc
+
 echo pwm_meson > ./etc/modules.d/pwm_meson
 echo panfrost > ./etc/modules.d/panfrost
 echo meson_gxbb_wdt > ./etc/modules.d/watchdog
