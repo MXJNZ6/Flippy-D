@@ -9,6 +9,26 @@ fi
 # 源镜像文件
 ##########################################################################
 source make.env
+function check_k510() {
+    # 判断内核版本是否 >= 5.10
+    K_VER=$(echo "$KERNEL_VERSION" | cut -d '.' -f1)
+    K_MAJ=$(echo "$KERNEL_VERSION" | cut -d '.' -f2)
+
+    if [ $K_VER -eq 5 ];then
+        if [ $K_MAJ -ge 10 ];then
+            K510=1
+        else
+	    K510=0
+        fi
+    elif [ $K_VER -gt 5 ];then
+        K510=1
+    else
+        K510=0
+    fi
+    export K510
+}
+check_k510
+
 # 盒子型号识别参数 
 SOC=s905d
 BOARD=n1
@@ -70,8 +90,12 @@ SYSCTL_CUSTOM_CONF="${PWD}/files/99-custom.conf"
 COREMARK="${PWD}/files/coremark.sh"
 
 # 20200930 add
-INST_SCRIPT="${PWD}/files/s905d/install-to-emmc.sh"
-UPDATE_SCRIPT="${PWD}/files/s905d/update-to-emmc.sh"
+#INST_SCRIPT="${PWD}/files/s905d/install-to-emmc.sh"
+#UPDATE_SCRIPT="${PWD}/files/s905d/update-to-emmc.sh"
+# 20210923 modify
+INST_SCRIPT="${PWD}/files/openwrt-install-amlogic"
+UPDATE_SCRIPT="${PWD}/files/openwrt-update-amlogic"
+
 SND_MOD="${PWD}/files/s905d/snd-meson-gx"
 DAEMON_JSON="${PWD}/files/s905d/daemon.json"
 
@@ -336,8 +360,8 @@ if [ -d "${FIP_HOME}" ];then
        cp -v "${FIP_HOME}"/*.sd.bin lib/u-boot/ 
 fi
 
-[ -f $INST_SCRIPT ] && cp $INST_SCRIPT root/
-# [ -f $UPDATE_SCRIPT ] && cp $UPDATE_SCRIPT root/
+[ -f $INST_SCRIPT ] && cp $INST_SCRIPT usr/bin/ && ln -s ../usr/bin/openwrt-install-amlogic root/install-to-emmc.sh
+[ -f $UPDATE_SCRIPT ] && cp $UPDATE_SCRIPT usr/bin/
 [ -f $MAC_SCRIPT1 ] && cp $MAC_SCRIPT1 usr/bin/
 [ -f $MAC_SCRIPT2 ] && cp $MAC_SCRIPT2 usr/bin/
 [ -f $MAC_SCRIPT3 ] && cp $MAC_SCRIPT3 usr/bin/
@@ -524,8 +548,23 @@ alias pwm pwm_meson
 alias wifi brcmfmac
 EOF
 
-sed -e "s/option sw_flow '1'/option sw_flow '${SW_FLOWOFFLOAD}'/" -i ./etc/config/turboacc
-sed -e "s/option hw_flow '1'/option hw_flow '${HW_FLOWOFFLOAD}'/" -i ./etc/config/turboacc
+if [ -f ./etc/config/turboacc ];then
+    sed -e "s/option sw_flow '1'/option sw_flow '${SW_FLOWOFFLOAD}'/" -i ./etc/config/turboacc
+    sed -e "s/option hw_flow '1'/option hw_flow '${HW_FLOWOFFLOAD}'/" -i ./etc/config/turboacc
+    sed -e "s/option sfe_flow '1'/option sfe_flow '${SFE_FLOW}'/" -i ./etc/config/turboacc
+else
+    cat > ./etc/config/turboacc <<EOF
+
+config turboacc 'config'
+        option sw_flow '${SW_FLOWOFFLOAD}'
+        option hw_flow '${HW_FLOWOFFLOAD}'
+	option sfe_flow '${SFE_FLOW}'
+        option bbr_cca '0'
+        option fullcone_nat '1'
+        option dns_caching '0'
+
+EOF
+fi
 
 echo pwm_meson > ./etc/modules.d/pwm_meson
 echo panfrost > ./etc/modules.d/panfrost
