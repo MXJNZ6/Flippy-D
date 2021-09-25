@@ -1,5 +1,5 @@
 [![Build N1 61+o](https://github.com/MXJNZ6/Flippy-D/actions/workflows/N1.yml/badge.svg)](https://github.com/MXJNZ6/Flippy-D/actions/workflows/N1.yml) 
-一：第一次刷入emmc: /root/install-to-emmc.sh
+一：第一次刷入emmc: openwrt-install-amlogic
 
 二：晶晨宝盒升级
 ssh步骤的可视化插件，拥有在线，本地升级以及快照管理，备份等功能
@@ -8,15 +8,11 @@ ssh步骤的可视化插件，拥有在线，本地升级以及快照管理，�
 1. cd /mnt/mmcblk2p4
 2. wget【空格】tar.gz右键复制的releases里的固件下载连接
  2.1例： wget https://github.com/MXJNZ6/Flippy-D/releases/download/openwrt_s905d_n1_64-lean%26flippy%26lienol/openwrt_s905d_n1_R21.9.18_k5.4.148-flippy-64+o.img.gz
-3. 解压 gzip -dv o【tab】（tab是自动补全）
- 3.1例：gzip -dv oopenwrt_s905d_n1_R21.9.18_k5.4.148-flippy-64+o.img.gz
-4. 同2下载 update-amlogic-openwrt.sh 升级脚本文件
-5. 赋予脚本权限 chmod 755 update-amlogic-openwrt.sh
-6. 输入./update-amlogic-openwrt.sh o【tab】
+3. 输入 openwrt-update-amlogic 升级系统
 
 四：本地ssh升级除去无需下载步骤其它与三相同
 
-快照功能:ssh链接后输入/usr/sbin/flippy
+快照功能:ssh链接后输入flippy【中文】，openwrt-backup【英文】
 
 openwrt rootfs 编译注意事项：
 
