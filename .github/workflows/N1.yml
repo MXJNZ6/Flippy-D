@@ -122,7 +122,7 @@ jobs:
         body: |
           This is OpenWrt firmware for N1
           * Firmware information
-          Default IP: 192.168.2.3
+          Default IP: 192.168.2.22
           Default username: root
           Default password: password
           Default WIFI name: OpenWrt
