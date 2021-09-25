@@ -81,10 +81,10 @@ jobs:
         
         echo "::set-output name=status::success"
                 
-    - name: copy update files
-      run: |
-        cd /opt/kernel
-        sudo cp files/update-amlogic-openwrt.sh tmp/update-amlogic-openwrt.sh
+#    - name: copy update files
+#      run: |
+#        cd /opt/kernel
+#        sudo cp files/update-amlogic-openwrt.sh tmp/update-amlogic-openwrt.sh
 
     - name: Check Files4
       run: |
@@ -127,11 +127,11 @@ jobs:
           Default password: password
           Default WIFI name: OpenWrt
           Default WIFI password: none
+          一：晶晨宝盒升级
+          二：手动升级
           1. cd /mnt/mmcblk2p4
-          2. wget img或者tar.gz右键复制的下载连接
-          3. 下载.gz的需要解压 gzip -dv o[tab]
-          4. chmod 755 update-amlogic-openwrt.sh
-          5. ./update-amlogic-openwrt.sh o[tab]
+          2. wget【空格】tar.gz右键复制的releases里的固件下载连接
+          3.输入 openwrt-update-amlogic 升级系统
         artifacts: ${{ env.FIRMWARE }}/*
         
     - name: Delete workflow runs
