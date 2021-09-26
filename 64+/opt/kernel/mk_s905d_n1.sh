@@ -78,7 +78,7 @@ CPUSTAT_PATCH="${PWD}/files/luci-admin-status-index-html.patch"
 CPUSTAT_PATCH_02="${PWD}/files/luci-admin-status-index-html-02.patch"
 GETCPU_SCRIPT="${PWD}/files/getcpu"
 TTYD="${PWD}/files/ttyd"
-FLIPPY="${PWD}/files/flippy"
+FLIPPY="${PWD}/files/scripts_deprecated/flippy_cn"
 BANNER="${PWD}/files/banner"
 
 # 20200314 add
@@ -90,12 +90,6 @@ SYSCTL_CUSTOM_CONF="${PWD}/files/99-custom.conf"
 COREMARK="${PWD}/files/coremark.sh"
 
 # 20200930 add
-#INST_SCRIPT="${PWD}/files/s905d/install-to-emmc.sh"
-#UPDATE_SCRIPT="${PWD}/files/s905d/update-to-emmc.sh"
-# 20210923 modify
-INST_SCRIPT="${PWD}/files/openwrt-install-amlogic"
-UPDATE_SCRIPT="${PWD}/files/openwrt-update-amlogic"
-
 SND_MOD="${PWD}/files/s905d/snd-meson-gx"
 DAEMON_JSON="${PWD}/files/s905d/daemon.json"
 
@@ -141,6 +135,12 @@ DOCKER_README="${PWD}/files/DockerReadme.pdf"
 
 # 20210704 add
 SYSINFO_SCRIPT="${PWD}/files/30-sysinfo.sh"
+
+# 20210923 add
+OPENWRT_INSTALL="${PWD}/files/openwrt-install-amlogic"
+OPENWRT_UPDATE="${PWD}/files/openwrt-update-amlogic"
+OPENWRT_KERNEL="${PWD}/files/openwrt-kernel"
+OPENWRT_BACKUP="${PWD}/files/openwrt-backup"
 ###########################################################################
 
 # 检查环境
@@ -360,8 +360,10 @@ if [ -d "${FIP_HOME}" ];then
        cp -v "${FIP_HOME}"/*.sd.bin lib/u-boot/ 
 fi
 
-[ -f $INST_SCRIPT ] && cp $INST_SCRIPT usr/bin/ && ln -s ../usr/bin/openwrt-install-amlogic root/install-to-emmc.sh
-[ -f $UPDATE_SCRIPT ] && cp $UPDATE_SCRIPT usr/bin/
+[ -f $OPENWRT_INSTALL ] && cp $OPENWRT_INSTALL usr/sbin/ && ln -s ../usr/sbin/openwrt-install-amlogic root/install-to-emmc.sh
+[ -f $OPENWRT_UPDATE ] && cp $OPENWRT_UPDATE usr/sbin/
+[ -f ${OPENWRT_KERNEL} ] && cp ${OPENWRT_KERNEL} usr/sbin/
+[ -f ${OPENWRT_BACKUP} ] && cp ${OPENWRT_BACKUP} usr/sbin/  &&  ln -sf openwrt-backup usr/sbin/flippy
 [ -f $MAC_SCRIPT1 ] && cp $MAC_SCRIPT1 usr/bin/
 [ -f $MAC_SCRIPT2 ] && cp $MAC_SCRIPT2 usr/bin/
 [ -f $MAC_SCRIPT3 ] && cp $MAC_SCRIPT3 usr/bin/
