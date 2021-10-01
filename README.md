@@ -5,6 +5,7 @@
 ssh步骤的可视化插件，拥有在线，本地升级以及快照管理，备份等功能
 
 三：在线ssh升级
+解压命令：gzip -dv o【tab】
 1. cd /mnt/mmcblk2p4
 2. wget【空格】tar.gz右键复制的releases里的固件下载连接
  2.1例： wget https://github.com/MXJNZ6/Flippy-D/releases/download/openwrt_s905d_n1_64-lean%26flippy%26lienol/openwrt_s905d_n1_R21.9.18_k5.4.148-flippy-64+o.img.gz
