@@ -10,7 +10,7 @@ env:
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
-  FILE_NAME: openwrt_s905d_n1_65-lean&flippy&lienol
+  FILE_NAME: openwrt_s905d_n1_66-lean&flippy&lienol
 
 jobs:
   build:
@@ -20,12 +20,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - flippy_name: 65+o
-            release_name: openwrt_s905d_n1_k5.4-65+o.img
-          - flippy_name: 65+
-            release_name: openwrt_s905d_n1_k5.10-65+.img
-          - flippy_name: 65+plus
-            release_name: openwrt_s905d_n1_k5.14-65+plus.img
+          - flippy_name: 66+o
+            release_name: openwrt_s905d_n1_k5.4-66+o.img
+          - flippy_name: 66+
+            release_name: openwrt_s905d_n1_k5.10-66+.img
+          - flippy_name: 66+plus
+            release_name: openwrt_s905d_n1_k5.14-66+plus.img
 
     env:
       FLIPPY_NAME: ${{ matrix.flippy_name }}   
