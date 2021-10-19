@@ -46,13 +46,13 @@ jobs:
                 
     - name: Download
       run: |
-        cd /opt/kernel
+        cd /opt/openwrt_packit
         
         wget  https://github.com/MXJNZ6/OpenWrt-D/releases/download/$version/openwrt-armvirt-64-default-rootfs.tar.gz
                 
     - name: Check Files
       run: |
-        cd /opt/kernel
+        cd /opt/openwrt_packit
         ls
                 
     - name: Install the package
@@ -68,15 +68,17 @@ jobs:
     - name: build img
       run: |
         sudo chmod  -R 777 /opt
-        cd /opt/kernel
-        sudo chmod +x *.sh
+        mkdir  /opt/openwrt_packit/tmp
+        mount -t tmpfs  none  /opt/openwrt_packit/tmp
+        cd /opt/openwrt_packit
+        #sudo chmod +x *.sh
         sudo ./mk_s905d_n1.sh
         
     - name: pigz -9
       id: pigz
       run: |
-        sudo chmod -R 777 /opt/kernel/tmp
-        cd /opt/kernel/tmp
+        sudo chmod -R 777 /opt/openwrt_packit/output
+        cd /opt/openwrt_packit/output
         sudo pigz -9 -p 2 -k *
         
         echo "::set-output name=status::success"
@@ -88,7 +90,7 @@ jobs:
 
     - name: Check Files4
       run: |
-        cd /opt/kernel/tmp
+        cd /opt/openwrt_packit/output
         ls
 
     - name: 编译后硬盘容量
@@ -99,7 +101,7 @@ jobs:
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
-        cd /opt/kernel/tmp
+        cd /opt/openwrt_packit/output
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "::set-output name=status::success"
         
