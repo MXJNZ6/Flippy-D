@@ -69,7 +69,7 @@ jobs:
       run: |
         sudo chmod  -R 777 /opt
         mkdir  /opt/openwrt_packit/tmp
-        mount -t tmpfs  none  /opt/openwrt_packit/tmp
+        sudo mount -t tmpfs  none  /opt/openwrt_packit/tmp
         cd /opt/openwrt_packit
         #sudo chmod +x *.sh
         sudo ./mk_s905d_n1.sh
