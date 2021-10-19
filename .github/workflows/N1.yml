@@ -68,6 +68,8 @@ jobs:
     - name: build img
       run: |
         sudo chmod  -R 777 /opt
+        mkdir  /opt/kernel/tmp
+        mount -t tmpfs  none  /opt/kernel/tmp
         cd /opt/kernel
         sudo chmod +x *.sh
         sudo ./mk_s905d_n1.sh
@@ -75,8 +77,8 @@ jobs:
     - name: pigz -9
       id: pigz
       run: |
-        sudo chmod -R 777 /opt/kernel/tmp
-        cd /opt/kernel/tmp
+        sudo chmod -R 777 /opt/kernel/output
+        cd /opt/kernel/output
         sudo pigz -9 -p 2 -k *
         
         echo "::set-output name=status::success"
@@ -88,7 +90,7 @@ jobs:
 
     - name: Check Files4
       run: |
-        cd /opt/kernel/tmp
+        cd /opt/kernel/output
         ls
 
     - name: 编译后硬盘容量
@@ -99,7 +101,7 @@ jobs:
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
-        cd /opt/kernel/tmp
+        cd /opt/kernel/output
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "::set-output name=status::success"
         
