@@ -158,21 +158,9 @@ cat uEnv.txt
 
 echo "修改根文件系统相关配置 ... "
 # modify root
+cd $TGT_ROOT
 copy_supplement_files
 extract_glibc_programs
-
-cd $TGT_ROOT
-
-if [ -d "${FIP_HOME}" ];then
-       mkdir -p lib/u-boot
-       cp -v "${FIP_HOME}"/../*.sh lib/u-boot/
-       cp -v "${FIP_HOME}"/*.sd.bin lib/u-boot/ 
-fi
-
-if [ -f etc/config/cpufreq ];then
-    sed -e "s/ondemand/schedutil/" -i etc/config/cpufreq
-fi
-
 adjust_docker_config
 adjust_openssl_config
 adjust_qbittorrent_config
@@ -183,72 +171,17 @@ adjust_openssh_config
 adjust_openclash_config
 use_xrayplug_replace_v2rayplug
 create_fstab_config
-
-cat > ./etc/modprobe.d/99-local.conf <<EOF
-blacklist snd_soc_meson_aiu_i2s
-alias brnf br_netfilter
-alias pwm pwm_meson
-alias wifi brcmfmac
-EOF
-
-echo pwm_meson > ./etc/modules.d/pwm_meson
-echo panfrost > ./etc/modules.d/panfrost
-echo meson_gxbb_wdt > ./etc/modules.d/watchdog
-
-mod_blacklist=$(cat ${KMOD_BLACKLIST})
-for mod in $mod_blacklist ;do
-	mv -f ./etc/modules.d/${mod} ./etc/modules.d.remove/ 2>/dev/null
-done
-
-if [ $K510 -eq 1 ];then
-    # 高版本内核下，如果ENABLE_WIFI_K510 = 0 则禁用wifi
-    if [ $ENABLE_WIFI_K510 -eq 0 ];then
-        mv -f ./etc/modules.d/brcm*  ./etc/modules.d.remove/ 2>/dev/null
-    fi
-else
-    # 低版本内核下，如果ENABLE_WIFI_K504 = 0 则禁用wifi
-    if [ $ENABLE_WIFI_K504 -eq 0 ];then
-        mv -f ./etc/modules.d/brcm*  ./etc/modules.d.remove/ 2>/dev/null
-    fi
-fi
-
-[ -f ./etc/modules.d/usb-net-asix-ax88179 ] || echo "ax88179_178a" > ./etc/modules.d/usb-net-asix-ax88179
-# +版内核，优先启用v2驱动, +o内核则启用v1驱动
-if echo $KERNEL_VERSION | grep -E '*\+$' ;then
-	echo "r8152" > ./etc/modules.d/usb-net-rtl8152
-else
-	echo "r8152" > ./etc/modules.d/usb-net-rtl8152
-fi
-[ -f ./etc/config/shairport-sync ] && [ -f ${SND_MOD} ] && cp ${SND_MOD} ./etc/modules.d/
-echo "r8188eu" > ./etc/modules.d/rtl8188eu
-
-rm -f ./etc/rc.d/S*dockerd
-
 adjust_turboacc_config
 adjust_ntfs_config
 patch_admin_status_index_html
+adjust_kernel_env
+copy_uboot_to_fs
 write_release_info
 write_banner 
 config_first_run
-
-# 创建 /etc 初始快照
-echo "创建初始快照: /etc -> /.snapshots/etc-000"
-cd $TGT_ROOT && \
-mkdir -p .snapshots && \
-btrfs subvolume snapshot -r etc .snapshots/etc-000
-
-# clean temp_dir
-cd $TEMP_DIR
-umount -f $TGT_BOOT $TGT_ROOT 
-
-# 写入完整的 u-boot 到 镜像文件
-if [ -f ${UBOOT_WITH_FIP} ];then
-    dd if=${UBOOT_WITH_FIP}  of=${TGT_DEV} conv=fsync,notrunc bs=512 skip=1 seek=1
-    dd if=${UBOOT_WITH_FIP}  of=${TGT_DEV} conv=fsync,notrunc bs=1 count=444
-fi
-
-( losetup -D && cd $WORK_DIR && rm -rf $TEMP_DIR && losetup -D)
-sync
+create_snapshot "etc-000"
+write_uboot_to_disk
+clean_work_env
 mv ${TGT_IMG} ${OUTPUT_DIR} && sync
 echo "镜像已生成! 存放在 ${OUTPUT_DIR} 下面!"
 echo "========================== end $0 ================================"
