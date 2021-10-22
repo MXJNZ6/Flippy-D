@@ -91,7 +91,7 @@ WIRELESS_CONFIG="${PWD}/files/s905d/wireless"
 
 # 20210307 add
 SS_LIB="${PWD}/files/ss-glibc/lib-glibc.tar.xz"
-SS_BIN="${PWD}/files/ss-glibc/ss-bin-glibc.tar.xz"
+SS_BIN="${PWD}/files/ss-glibc/armv8a_crypto/ss-bin-glibc.tar.xz"
 JQ="${PWD}/files/jq"
 
 # 20210330 add
@@ -116,13 +116,16 @@ OPENWRT_BACKUP="${PWD}/files/openwrt-backup"
 
 # 20211019 add
 FIRSTRUN_SCRIPT="${PWD}/files/first_run.sh"
+
+# 20211020 add
+BTLD_BIN="${PWD}/files/s905d/u-boot-2015-phicomm-n1.bin"
 ###########################################################################
 
 check_depends
 
 SKIP_MB=4
-BOOT_MB=256
-ROOTFS_MB=640
+BOOT_MB=160
+ROOTFS_MB=736
 SIZE=$((SKIP_MB + BOOT_MB + ROOTFS_MB))
 create_image "$TGT_IMG" "$SIZE"
 create_partition "$TGT_DEV" "msdos" "$SKIP_MB" "$BOOT_MB" "fat32" "0" "-1" "btrfs"
@@ -135,7 +138,6 @@ extract_rootfs_files
 extract_amlogic_boot_files
 
 echo "修改引导分区相关配置 ... "
-# modify boot
 cd $TGT_BOOT
 rm -f uEnv.ini
 cat > uEnv.txt <<EOF
@@ -153,11 +155,13 @@ FDT=/dtb/amlogic/meson-gxl-s905d-phicomm-n1.dtb
 APPEND=root=UUID=${ROOTFS_UUID} rootfstype=btrfs rootflags=compress=zstd console=ttyAML0,115200n8 console=tty0 no_console_suspend consoleblank=0 fsck.fix=yes fsck.repair=yes net.ifnames=0 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory swapaccount=1
 EOF
 
-echo "uEnv.txt --->"
+echo "uEnv.txt -->"
+echo "==============================================================================="
 cat uEnv.txt
+echo "==============================================================================="
+echo
 
 echo "修改根文件系统相关配置 ... "
-# modify root
 cd $TGT_ROOT
 copy_supplement_files
 extract_glibc_programs
