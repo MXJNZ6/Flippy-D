@@ -124,11 +124,11 @@ jobs:
         body: |
           This is OpenWrt firmware for N1
           * Firmware information
-          Default IP: 192.168.2.22
+          Default IP地址: 192.168.2.22
           Default username: root
-          Default password: password
+          Default password: 无
           Default WIFI name: OpenWrt
-          Default WIFI password: none
+          Default WIFI password: 无
           一：晶晨宝盒升级
           二：手动升级
           1. cd /mnt/mmcblk2p4
@@ -145,7 +145,7 @@ jobs:
     - name: Remove old Releases
       uses: dev-drprasad/delete-older-releases@v0.1.0
       with:
-        keep_latest: 3
+        keep_latest: 7
         delete_tags: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
