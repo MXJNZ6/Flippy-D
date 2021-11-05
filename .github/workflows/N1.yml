@@ -42,6 +42,7 @@ jobs:
         echo "DATE=$(date "+%Y-%m-%d %H:%M:%S")"  >> $GITHUB_ENV
         
         sudo chmod  -R 777 /opt
+        cp -r ${FLIPPY_NAME}/opt/whoami /opt/openwrt_packit
         cp -r ${FLIPPY_NAME}/opt/* /opt
                 
     - name: Download
