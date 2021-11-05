@@ -117,7 +117,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         name: R${{ env.DATE }} for ${{ env.FILE_NAME }}
-        allowUpdates: true
+        allowUpdates: false
         tag: ${{ env.FILE_NAME }}
         commit: master
         token: ${{ secrets.RELEASES_TOKEN }}
