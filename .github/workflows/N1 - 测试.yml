@@ -1,4 +1,4 @@
-name: Build N1
+name: Build N1 test
 on:
   repository_dispatch:
   workflow_dispatch:
