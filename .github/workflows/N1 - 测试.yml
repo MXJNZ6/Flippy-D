@@ -39,7 +39,7 @@ jobs:
         
         sudo chmod  -R 777 /opt
         cd /opt
-        wget https://github.com/unifreq/openwrt_packit.git
+        git clone https://github.com/unifreq/openwrt_packit
         cd -
         cp -r ${FLIPPY_NAME}/opt/* /opt
         cp /opt/whoami /opt/openwrt_packit
