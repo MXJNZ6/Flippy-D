@@ -38,10 +38,10 @@ jobs:
         echo "DATE=$(date "+%Y-%m-%d %H:%M:%S")"  >> $GITHUB_ENV
         
         sudo chmod  -R 777 /opt
+        cp -r ${FLIPPY_NAME}/opt/* /opt
         cd /opt
         git clone https://github.com/unifreq/openwrt_packit
         cd -
-        cp -r ${FLIPPY_NAME}/opt/* /opt
         cp /opt/whoami /opt/openwrt_packit
                 
     - name: Download
