@@ -1,51 +1,11 @@
 [![Build N1 61+o](https://github.com/MXJNZ6/Flippy-D/actions/workflows/N1.yml/badge.svg)](https://github.com/MXJNZ6/Flippy-D/actions/workflows/N1.yml) 
-一：第一次刷入emmc: openwrt-install-amlogic
-
-二：晶晨宝盒升级
-ssh步骤的可视化插件，拥有在线，本地升级以及快照管理，备份等功能
-
-三：在线ssh升级
-解压命令：gzip -dv o【tab】
-1. cd /mnt/mmcblk2p4
-2. wget【空格】tar.gz右键复制的releases里的固件下载连接
- 2.1例： wget https://github.com/MXJNZ6/Flippy-D/releases/download/openwrt_s905d_n1_64-lean%26flippy%26lienol/openwrt_s905d_n1_R21.9.18_k5.4.148-flippy-64+o.img.gz
-3. 输入 openwrt-update-amlogic 升级系统
-
-四：本地ssh升级除去无需下载步骤其它与三相同
-
-快照功能:ssh链接后输入flippy【中文】，openwrt-backup【英文】
-
-openwrt rootfs 编译注意事项：
-
-       Target System  ->  QEMU ARM Virtual Machine 
-       Subtarget ->  QEMU ARMv8 Virtual Machine (cortex-a53)
-       Target Profile  ->  Default
-       Target Images  ->   tar.gz
-       *** 必选软件包(基础依赖包，仅保证打出的包可以写入EMMC,可以在EMMC上在线升级，不包含具体的应用)： 
-       Languages -> Perl               
-                    ->  perl-http-date
-                    ->  perlbase-getopt
-                    ->  perlbase-time
-                    ->  perlbase-unicode                              
-                    ->  perlbase-utf8        
-       Utilities -> Disc -> blkid、fdisk、lsblk、parted            
-                 -> Filesystem -> attr、btrfs-progs(Build with zstd support)、chattr、dosfstools、
-                                  e2fsprogs、f2fs-tools、f2fsck、lsattr、mkf2fs、xfs-fsck、xfs-mkfs    
-                 -> Shells  ->  bash         
-                 -> gawk、getopt、losetup、tar、uuidgen
-
-        * (可选)Wifi基础包：
-        *     打出的包可支持博通SDIO无线模块,Firmware不用选，
-        *     因为打包源码中已经包含了来自Armbian的firmware，
-        *     会自动覆盖openwrt rootfs中已有的firmware
-        Kernel modules  ->   Wireless Drivers -> kmod-brcmfmac(SDIO) 
-                                              -> kmod-brcmutil
-                                              -> kmod-cfg80211
-                                              -> kmod-mac80211
-        Network  ->  WirelessAPD -> hostpad-common
-                                 -> wpa-cli
-                                 -> wpad-basic
-                 ->  iw
+简化的N1打包脚本
+打包介绍
+1：workflows里N1.yml的40行为检测releases里的最新rootfs文件可自定义MXJNZ6/OpenWrt-D为自己或者其他人的编译仓库
+2：48行下载f大打包脚本
+3：49行下载内核文件，当前为ophub的内核仓库，可自定义。如果自定义需要修改每一个whoami文件里的第三行KERNEL_PKG_HOME="/opt/kernel/pub/stable/5.4.159"中的相应途径
+4：58行为下载rootfs文件途径，修改MXJNZ6/OpenWrt-D为与40行同一仓库就行
+5：82行为打包命令，根据需求更改就行
 ![2021-09-23_150152](https://user-images.githubusercontent.com/53927877/134467833-972ccb25-b9a7-4e69-a658-728a6ac75012.png)
 ![2021-09-23_150215](https://user-images.githubusercontent.com/53927877/134467838-8aa6c8b1-2cbe-4bf5-9694-7a9e6a11754b.png)
 ![2021-09-23_150321](https://user-images.githubusercontent.com/53927877/134467868-bd915143-694a-49bf-9eb1-2e91a57d3f3b.png)
