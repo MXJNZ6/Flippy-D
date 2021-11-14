@@ -1,3 +1,3 @@
 WHOAMI="Akatsuki" 
-KERNEL_VERSION="5.10.78-flippy-67+"
+KERNEL_VERSION="5.10.79-flippy-67+"
 KERNEL_PKG_HOME="/opt/kernel/pub/stable/5.10.79"
