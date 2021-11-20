@@ -19,12 +19,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - flippy_name: k5.4
-            release_name: openwrt_s905d_n1_k5.4.img
-          - flippy_name: k5.10
-            release_name: openwrt_s905d_n1_k5.10.img
-          - flippy_name: k5.14
-            release_name: openwrt_s905d_n1_k5.14.img
+          #- flippy_name: k5.4
+          #  release_name: openwrt_s905d_n1_k5.4.img
+          #- flippy_name: k5.10
+          #  release_name: openwrt_s905d_n1_k5.10.img
+          #- flippy_name: k5.14
+          #  release_name: openwrt_s905d_n1_k5.14.img
           - flippy_name: k5.15
             release_name: openwrt_s905d_n1_k5.15.img
     env:
