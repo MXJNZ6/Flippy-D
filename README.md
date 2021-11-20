@@ -3,8 +3,8 @@
 N1.yml介绍
 1. 39行为检测releases里的最新rootfs文件可自定义MXJNZ6/OpenWrt-D为自己或者其他人的编译仓库
 2. 47行下载f大打包脚本
-3. 48行下载内核文件，当前为ophub的内核仓库，可自定义。如果自定义需要修改每一个whoami文件里的第三行KERNEL_PKG_HOME="/opt/kernel/pub/stable/5.4.159"中的相应途径
-4. 57行为下载rootfs文件途径，修改MXJNZ6/OpenWrt-D为与40行同一仓库
+3. 48行下载内核文件，当前为ophub的内核仓库，可自定义。如果自定义需要修改每一个whoami文件里的第5行/opt/kernel/pub/stable为相应途径
+4. 57行为下载rootfs文件途径，修改MXJNZ6/OpenWrt-D为与39行同一仓库
 5. 80行为打包命令，根据需求更改.
 
 whoami文件介绍
