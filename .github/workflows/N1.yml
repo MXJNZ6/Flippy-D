@@ -127,7 +127,7 @@ jobs:
           Default IP地址: 192.168.2.22
           Default username: root
           Default password: 无
-          Default WIFI name: OpenWrt
+          Default WIFI name: Phicomm_n1
           Default WIFI password: 无
         artifacts: ${{ env.FIRMWARE }}/*
         
