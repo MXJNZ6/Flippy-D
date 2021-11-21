@@ -84,7 +84,8 @@ jobs:
       run: |
         sudo chmod -R 777 /opt/openwrt_packit/output
         cd /opt/openwrt_packit/output
-        sudo pigz -9 -p 2 -k *
+        sudo pigz -9 -p 2 *
+        #sudo pigz -9 -p 2 -k *(-k保留原文件)
         
         echo "::set-output name=status::success"
 
@@ -128,7 +129,7 @@ jobs:
           Default username: root
           Default password: 无
           Default WIFI name: Phicomm_n1
-          Default WIFI password: 无
+          Default WIFI password: password
         artifacts: ${{ env.FIRMWARE }}/*
         
     - name: Delete workflow runs
