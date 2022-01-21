@@ -1,5 +1,5 @@
 WHOAMI="Akatsuki"
-KERNEL="5.10.92"
+KERNEL="5.10.93"
 VERSION="69+"
 KERNEL_VERSION="$KERNEL-flippy-$VERSION"
 KERNEL_PKG_HOME="/opt/kernel/pub/stable/$KERNEL"
