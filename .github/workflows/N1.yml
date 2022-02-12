@@ -45,6 +45,7 @@ jobs:
         cp -r ${FLIPPY_NAME}/opt/* /opt
         cd /opt
         git clone https://github.com/unifreq/openwrt_packit
+        svn co https://github.com/MXJNZ6/Flippy-D/trunk/kernel /kernel
         cd -
         cp /opt/whoami /opt/openwrt_packit
                 
