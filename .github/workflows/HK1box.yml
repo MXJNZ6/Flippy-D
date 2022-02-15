@@ -9,7 +9,7 @@ env:
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
-  FILE_NAME: openwrt_s905x3_HK1box-lean&flippy&lienol
+  FILE_NAME: openwrt_s905x3_multi-lean&flippy&lienol
 
 jobs:
   build:
@@ -20,13 +20,13 @@ jobs:
       matrix:
         include:
           - flippy_name: k5.4
-            release_name: openwrt_s905x3_HK1box_k5.4.img
+            release_name: openwrt_s905x3_multi_k5.4.img
           - flippy_name: k5.10
-            release_name: openwrt_s905x3_HK1box_k5.10.img
+            release_name: openwrt_s905x3_multi_k5.10.img
           - flippy_name: k5.15
-            release_name: openwrt_s905x3_HK1box_k5.15.img
+            release_name: openwrt_s905x3_multi_k5.15.img
           - flippy_name: k5.16
-            release_name: openwrt_s905x3_HK1box_k5.16.img
+            release_name: openwrt_s905x3_multi_k5.16.img
     env:
       FLIPPY_NAME: ${{ matrix.flippy_name }}   
       RELEASE_NAME: ${{ matrix.release_name }}
