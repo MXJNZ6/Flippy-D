@@ -1,4 +1,4 @@
-name: Build HK1box
+name: Build s905x3_multi
 on:
   repository_dispatch:
   workflow_dispatch:
