@@ -46,7 +46,7 @@ jobs:
         cd /opt
         sudo mkdir /kernel
         git clone https://github.com/unifreq/openwrt_packit
-        sudo cp $GITHUB_WORKSPACE/kernel/* /opt/kernel/
+        sudo cp $GITHUB_WORKSPACE/kernel/* /opt/kernel
         cd -
         cp /opt/whoami /opt/openwrt_packit
                 
