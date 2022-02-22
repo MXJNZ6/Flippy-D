@@ -40,13 +40,13 @@ jobs:
         
         echo "version=$version"  >> $GITHUB_ENV
         echo "DATE=$(date "+%Y-%m-%d %H:%M:%S")"  >> $GITHUB_ENV
-        
-        sudo chmod  -R 777 /opt
+        echo $PWD
+        sudo mkdir /opt/kernel
+        sudo cp -r $GITHUB_WORKSPACE/kernel/* /opt/kernel/
+        ls
         cp -r ${FLIPPY_NAME}/opt/* /opt
         cd /opt
-        sudo mkdir /kernel
         git clone https://github.com/unifreq/openwrt_packit
-        sudo cp -r $GITHUB_WORKSPACE/kernel/* /kernel
         cd -
         cp /opt/whoami /opt/openwrt_packit
                 
