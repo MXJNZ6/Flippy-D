@@ -44,8 +44,9 @@ jobs:
         sudo chmod  -R 777 /opt
         cp -r ${FLIPPY_NAME}/opt/* /opt
         cd /opt
+        sudo mkdir /kernel
         git clone https://github.com/unifreq/openwrt_packit
-        svn co https://github.com/MXJNZ6/Flippy-D/trunk/kernel
+        sudo cp $GITHUB_WORKSPACE/kernel/* /opt/kernel/
         cd -
         cp /opt/whoami /opt/openwrt_packit
                 
