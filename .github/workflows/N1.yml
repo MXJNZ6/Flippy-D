@@ -146,3 +146,10 @@ jobs:
     #    delete_tags: true
     #  env:
     #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  over:
+    needs: [build]
+    runs-on: ubuntu-20.04
+    steps:
+    - name: TG notification #TG推送
+      run: curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}&text=主人，N1盒子OpenWrt系统打包成功啦！"
