@@ -42,7 +42,7 @@ jobs:
         echo "DATE=$(date "+%Y-%m-%d %H:%M:%S")"  >> $GITHUB_ENV
         echo $PWD
         sudo mkdir /opt/kernel
-        sudo cp -r $GITHUB_WORKSPACE/kernel/* /opt/kernel/
+        svn co https://github.com/ophub/kernel/trunk/pub/stable opt/kernel
         ls
         cp -r ${FLIPPY_NAME}/opt/* /opt
         cd /opt
