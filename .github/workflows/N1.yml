@@ -42,10 +42,10 @@ jobs:
         echo "DATE=$(date "+%Y-%m-%d %H:%M:%S")"  >> $GITHUB_ENV
         echo $PWD
         sudo mkdir /opt/kernel
-        svn co https://github.com/ophub/kernel/trunk/pub/stable opt/kernel
-        ls
         cp -r ${FLIPPY_NAME}/opt/* /opt
         cd /opt
+        ls
+        svn co https://github.com/ophub/kernel/trunk/pub/stable kernel
         git clone https://github.com/unifreq/openwrt_packit
         cd -
         cp /opt/whoami /opt/openwrt_packit
