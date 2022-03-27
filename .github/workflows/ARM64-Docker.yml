@@ -54,8 +54,6 @@ jobs:
         sudo -E apt-get -qq install pigz
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean
-        curl -fsSL get.docker.com | sudo sh
-        sudo systemctl start docker
     
     - name: build img
       run: |
