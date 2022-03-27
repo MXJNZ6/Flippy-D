@@ -1,0 +1,121 @@
+name: Build Docker-arm
+on:
+  repository_dispatch:
+  workflow_dispatch:
+  schedule:
+    - cron: 0 23 * * *      
+env:
+  UPLOAD_WERANSFER: true
+  UPLOAD_FIRMWARE: true
+  UPLOAD_RELEASE: true
+  TZ: Asia/Shanghai
+  FILE_NAME: openwrt_docker-lean&flippy&lienol
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    env:
+      FLIPPY_NAME: $FILE_NAME  
+      RELEASE_NAME: $FILE_NAME
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+      
+    - name: Initialization environment
+      run: |     
+        version=$(curl -s "https://api.github.com/repos/MXJNZ6/openwrt/releases/latest" | awk -F '"' '/tag_name/{print $4}')
+        
+        echo "version=$version"  >> $GITHUB_ENV
+        echo "DATE=$(date "+%Y-%m-%d %H:%M:%S")"  >> $GITHUB_ENV
+        echo $PWD
+        sudo mkdir /opt/kernel
+        cd /opt
+        git clone https://github.com/unifreq/openwrt_packit
+        ls
+                
+    - name: Download
+      run: |
+        cd /opt/openwrt_packit
+        
+        wget  https://github.com/MXJNZ6/openwrt/releases/download/$version/openwrt-armvirt-64-default-rootfs.tar.gz
+        
+    - name: Check Files
+      run: |
+        cd /opt/openwrt_packit
+        ls
+                
+    - name: Install the package
+      run: |
+        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+        sudo -E apt-get -qq update
+        sudo -E apt-get -qq install xz-utils btrfs-progs gawk zip unzip curl dosfstools  uuid-runtime
+        sudo -E apt-get -qq install git  git-core
+        sudo -E apt-get -qq install pigz
+        sudo -E apt-get -qq autoremove --purge
+        sudo -E apt-get -qq clean
+        curl -fsSL get.docker.com | sudo sh
+        sudo systemctl start docker
+    
+    - name: build img
+      run: |
+        sudo chmod  -R 777 /opt
+        cd /opt/openwrt_packit
+        #sudo chmod +x *.sh
+        sudo ./mk_openwrt_dockerimg.sh  unicorn/openwrt-aarch64  latest
+        
+        echo "::set-output name=status::success"
+
+    - name: Check Files4
+      run: |
+        cd /opt/openwrt_packit/output
+        ls
+
+    - name: 编译后硬盘容量
+      if: (!cancelled())
+      run: df -hT
+      
+    - name: Organize files
+      id: organize
+      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+      run: |
+        cd /opt/openwrt_packit/output
+        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+        echo "::set-output name=status::success"
+        
+    - name: Upload firmware directory
+      uses: actions/upload-artifact@main
+      if: steps.organize.outputs.status == 'success' && !cancelled()
+      with:
+        name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        path: ${{ env.FIRMWARE }}
+        
+    - name: Create release
+      id: release
+      uses: ncipollo/release-action@v1
+      with:
+        name: R${{ env.DATE }} for ${{ env.FILE_NAME }}
+        allowUpdates: true
+        tag: ${{ env.FILE_NAME }}
+        commit: master
+        token: ${{ secrets.RELEASES_TOKEN }}
+        body: |
+          This is OpenWrt firmware for Docker
+          * Firmware information
+          Default IP地址: 192.168.2.22
+          Default username: root
+          Default password: password
+        artifacts: ${{ env.FIRMWARE }}/*
+        
+    - name: Delete workflow runs
+      uses: GitRML/delete-workflow-runs@main
+      with:
+        retain_days: 2
+        keep_minimum_runs: 0
+
+  over:
+    needs: [build]
+    runs-on: ubuntu-20.04
+    steps:
+    - name: TG notification #TG推送
+      run: curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}&text=主人，arm盒子Docker版OpenWrt系统打包成功啦！"
