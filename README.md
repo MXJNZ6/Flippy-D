@@ -16,3 +16,4 @@ whoami文件介绍
 5. 第5行为内核全称
 6. 第6行为内核途径
 7. 如f大内核更新，想编译最新版只需更改第3和第4行就行。第二行可修改与F大或者lean一致，也可修改成自己喜欢的
+![插件](https://user-images.githubusercontent.com/53927877/162709856-d6454dd1-dcce-462c-8dd6-d026d8723d9b.png)
