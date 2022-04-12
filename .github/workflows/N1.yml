@@ -74,6 +74,7 @@ jobs:
         cd /opt/openwrt_packit
         #sudo chmod +x *.sh
         sudo ./mk_s905d_n1.sh
+        sudo cp files/openwrt-update-amlogic output/openwrt-update-amlogic
         
     - name: pigz -9
       id: pigz
