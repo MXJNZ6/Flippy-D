@@ -86,11 +86,10 @@ jobs:
         
         echo "::set-output name=status::success"
 
-    - name: Check Files4 and TG
+    - name: Check Files4
       run: |
         cd /opt/openwrt_packit/output
         ls
-        sudo curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendDocument -F chat_id=${{ secrets.TELEGRAM_N1_ID }} -F document=@"*.img.gz"
 
     - name: 编译后硬盘容量
       if: (!cancelled())
