@@ -90,7 +90,7 @@ jobs:
       run: |
         cd /opt/openwrt_packit/output
         ls
-        curl -F chat_id=${{ secrets.TELEGRAM_N1_ID }} -F document=@"*.img.gz" https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendDocument
+        sudo curl -F chat_id=${{ secrets.TELEGRAM_N1_ID }} -F document=@"*.img.gz" https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendDocument
 
     - name: 编译后硬盘容量
       if: (!cancelled())
