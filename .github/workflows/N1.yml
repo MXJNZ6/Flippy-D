@@ -88,10 +88,9 @@ jobs:
 
     - name: Check Files4 and TG
       run: |
-        N1="*.img.gz"
         cd /opt/openwrt_packit/output
         ls
-        sudo curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendDocument -F chat_id=${{ secrets.TELEGRAM_N1_ID }} -F document=@"$N1"
+        sudo curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendDocument -F chat_id=${{ secrets.TELEGRAM_N1_ID }} -F document=@"*.img.gz"
 
     - name: 编译后硬盘容量
       if: (!cancelled())
