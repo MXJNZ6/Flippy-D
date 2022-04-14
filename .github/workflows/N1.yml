@@ -19,7 +19,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - flippy_name: k5.10
           - flippy_name: k5.15
           - flippy_name: k5.16
           - flippy_name: k5.17
