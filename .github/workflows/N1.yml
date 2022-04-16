@@ -39,11 +39,8 @@ jobs:
         cd /opt
         ls
         svn co https://github.com/ophub/kernel/trunk/pub/stable kernel
-        cd kernel
-        svn co https://github.com/ophub/kernel/trunk/pub/eol
-        cd ..
         git clone https://github.com/unifreq/openwrt_packit
-        cd -
+        cd ..
         cp /opt/whoami /opt/openwrt_packit
                 
     - name: Download
