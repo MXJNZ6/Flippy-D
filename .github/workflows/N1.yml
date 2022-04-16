@@ -9,7 +9,7 @@ env:
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
-  FILE_NAME: openwrt_s905d_n1-lean&flippy&lienol
+  FILE_NAME: openwrt_s905d_n1-lean&flippy
 
 jobs:
   build:
