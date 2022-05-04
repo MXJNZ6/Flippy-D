@@ -14,7 +14,7 @@ on:
         required: false
         default: "unifreq"
       kernel_version:
-        description: "Kernel version: 5.4.180"
+        description: "Kernel version: 5.15.37"
         required: false
         default: "5.15.37_5.17.5"
       kernel_auto:
