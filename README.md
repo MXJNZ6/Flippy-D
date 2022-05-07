@@ -1,6 +1,7 @@
 [![Build N1](https://github.com/MXJNZ6/Flippy-D/actions/workflows/N1.yml/badge.svg)](https://github.com/MXJNZ6/Flippy-D/actions/workflows/N1.yml)
 ```
-N1.yml介绍(需要在settings里填写RELEASES_TOKEN)
+N1.yml介绍
+首先需要在settings里填写RELEASES_TOKEN，值为你帐号设置里添加的repo权限密钥
 1. 31行是检测releases里的最新rootfs文件可自定义MXJNZ6/OpenWrt-D为自己或者其他人的编译仓库
 2. 39行是内核文件下载途径
 3. 40行是f大打包脚本下载途径
