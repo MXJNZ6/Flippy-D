@@ -1,0 +1,46 @@
+name: Update Checker
+
+env:
+  FILE_NAME: MASTER
+  REPO_BRANCH: main
+  REPO_URL_LEDE: https://github.com/unifreq/linux-5.15.y
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: 0 7/12 * * *
+
+jobs:
+  lede:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Get Commit Hash
+      id: getHash
+      run: |
+        git clone --depth 1 $REPO_URL_LEDE -b $REPO_BRANCH .
+        echo "::set-output name=commitHash::$(git rev-parse HEAD)"
+    - name: Compare Commit Hash
+      id: cacheHash
+      uses: actions/cache@v2
+      with:
+        path: .commitHash
+        key: HEAD-${{ steps.getHash.outputs.commitHash }}
+
+    - name: Save New Commit Hash
+      if: steps.cacheHash.outputs.cache-hit != 'true'
+      run: |
+        echo ${{ steps.getHash.outputs.commitHash }} | tee .commitHash
+        
+    - name: Trigger build
+      if: steps.cacheHash.outputs.cache-hit != 'true'
+      uses: peter-evans/repository-dispatch@v1
+      with:
+        token: ${{ secrets.RELEASES_TOKEN }}
+        event-type: lede Source Code Update
+
+    - name: Source Code Update notification
+      if: steps.cacheHash.outputs.cache-hit != 'true'
+      run: |
+        curl -k --data chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" --data "text=${{ env.FILE_NAME }},linux内核源码更新了" "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage"
