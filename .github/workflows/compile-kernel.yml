@@ -14,9 +14,9 @@ on:
         required: false
         default: "unifreq"
       kernel_version:
-        description: "Kernel version: 5.10.100"
+        description: "Kernel version: 5.15.35"
         required: false
-        default: "5.15.36"
+        default: "5.15.35_5.17.5"
       kernel_auto:
         description: "Auto use the latest kernel"
         required: false
@@ -71,6 +71,6 @@ jobs:
           tag: kernel_${{ env.PACKAGED_OUTPUTTAGS }}
           artifacts: ${{ env.PACKAGED_OUTPUTPATH }}/*
           allowUpdates: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASES_TOKEN }}
           body: |
             The kernel can be used to compile Armbian and OpenWrt.
