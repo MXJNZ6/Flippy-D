@@ -16,7 +16,7 @@ on:
       kernel_version:
         description: "Kernel version: 5.15.37"
         required: false
-        default: "5.15.37_5.17.5"
+        default: "5.15.36"
       kernel_auto:
         description: "Auto use the latest kernel"
         required: false
@@ -24,7 +24,7 @@ on:
       kernel_sign:
         description: "Set the kernel custom signature"
         required: false
-        default: "-unicorn-01"
+        default: "-flippy-72+o"
       kernel_config:
         description: "Set the path of kernel .config"
         required: false
