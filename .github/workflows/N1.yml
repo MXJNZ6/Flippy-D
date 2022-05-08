@@ -2,8 +2,8 @@ name: Build N1
 on:
   repository_dispatch:
   workflow_dispatch:
-  schedule:
-    - cron: 0 23 * * *      
+#  schedule:
+#    - cron: 0 23 * * *      
 env:
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
