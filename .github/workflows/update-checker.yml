@@ -11,7 +11,7 @@ on:
     - cron: 0 7/12 * * *
 
 jobs:
-  lede:
+  unifreq:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,6 +21,7 @@ jobs:
       run: |
         git clone --depth 1 $REPO_URL_LEDE -b $REPO_BRANCH .
         echo "::set-output name=commitHash::$(git rev-parse HEAD)"
+        
     - name: Compare Commit Hash
       id: cacheHash
       uses: actions/cache@v2
