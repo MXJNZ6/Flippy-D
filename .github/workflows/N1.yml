@@ -113,7 +113,7 @@ jobs:
         allowUpdates: true
         tag: ${{ env.FILE_NAME }}
         commit: master
-        token: ${{ secrets.RELEASES_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
         body: |
           This is OpenWrt firmware for N1
           * Firmware information
