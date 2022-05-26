@@ -4,7 +4,7 @@ Fork本仓库，在Settings-Actions-General最下边选择Read and write permiss
 N1.yml介绍
 1. 37行是内核文件下载途径
 2. 38行是f大打包脚本下载途径
-4. 45行是下载rootfs文件途径，修改MXJNZ6/openwrt为你的仓库，Aarch64修改为你的仓库releases文件的tag
+4. 45行是下载rootfs文件途径，修改MXJNZ6/openwrt为你的仓库，Aarch64修改为你的仓库releases文件的tag标签
 5. 69行为打包命令根据设备不同可根据需求更改
 6. 21-22行是几个任务流程，比如我只需要5.15那么你可以把其它的都删除，如果需要其它的可以在类比5.15和5.17文件结构新建一个
 ```
