@@ -2,11 +2,10 @@
 ```
 Fork本仓库，在Settings-Actions-General最下边选择Read and write permissions和Allow GitHub Actions to create and approve pull requests
 N1.yml介绍
-1. 31行是检测releases里的最新rootfs文件可自定义MXJNZ6/OpenWrt-D为自己或者其他人的编译仓库
-2. 39行是内核文件下载途径
-3. 40行是f大打包脚本下载途径
-4. 47行是下载rootfs文件途径，修改MXJNZ6/OpenWrt-D为与39行同一仓库
-5. 71行为打包命令根据设备不同可根据需求更改
+1. 37行是内核文件下载途径
+2. 38行是f大打包脚本下载途径
+4. 45行是下载rootfs文件途径，修改MXJNZ6/openwrt为你的仓库，Aarch64修改为你的仓库releases文件的tag
+5. 69行为打包命令根据设备不同可根据需求更改
 6. 21-22行是几个任务流程，比如我只需要5.15那么你可以把其它的都删除，如果需要其它的可以在类比5.15和5.17文件结构新建一个
 ```
 ```
