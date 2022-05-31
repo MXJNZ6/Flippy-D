@@ -121,22 +121,6 @@ jobs:
           Default WIFI name: Phicomm_n1
           Default WIFI password: password
         artifacts: ${{ env.FIRMWARE }}/*
-        
-    - name: Delete workflow runs
-      uses: GitRML/delete-workflow-runs@main
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        repository: ${{ github.repository }}
-        retain_days: 0
-        keep_minimum_runs: 2
-        
-    #- name: Remove old Releases
-    #  uses: dev-drprasad/delete-older-releases@v0.1.0
-    #  with:
-    #    keep_latest: 7
-    #    delete_tags: true
-    #  env:
-    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   over:
     needs: [build]
@@ -144,3 +128,11 @@ jobs:
     steps:
     - name: TG notification #TG推送
       run: curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}&text=主人，N1盒子OpenWrt系统打包成功啦！"
+
+    - name: Delete workflow runs
+      uses: GitRML/delete-workflow-runs@main
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        repository: ${{ github.repository }}
+        retain_days: 0
+        keep_minimum_runs: 2
