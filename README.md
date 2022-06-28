@@ -18,8 +18,6 @@ whoami文件介绍
 6. 第6行是内核途径。不需要动
 7. 如f大内核更新，想编译最新版只需更改第3和第4行就行。
 ```
-![插件](https://user-images.githubusercontent.com/53927877/162709856-d6454dd1-dcce-462c-8dd6-d026d8723d9b.png)
-
 ### Wireguard使用教程
 ```
 以N1旁路由为例
