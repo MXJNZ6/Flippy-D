@@ -18,7 +18,7 @@ whoami文件介绍
 6. 第6行是内核途径。不需要动
 7. 如f大内核更新，想编译最新版只需更改第3和第4行就行。
 ```
-### Wireguard使用教程.原作者（https://github.com/WeeJeWel/wg-easy）
+### Wireguard使用教程.原作者（https://github.com/WeeJeWel/wg-easy ）
 ```
 以N1旁路由为例
 主路由DDNS域名为n1.pangluyou.xyz
