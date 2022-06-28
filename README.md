@@ -19,3 +19,65 @@ whoami文件介绍
 7. 如f大内核更新，想编译最新版只需更改第3和第4行就行。
 ```
 ![插件](https://user-images.githubusercontent.com/53927877/162709856-d6454dd1-dcce-462c-8dd6-d026d8723d9b.png)
+
+### Wireguard使用教程
+```
+以N1旁路由为例
+主路由DDNS域名为n1.pangluyou.xyz
+N1的ip地址为10.10.10.254
+主路由端口映射公网的12345端口到N1的51820
+根据自己的需求更改下边
+第三行的WG_HOST等于号后边为自己的域名、
+第四行的WG_PORT等于号后边的公网端口号为自己端口映射的、
+第五行的PASSWORD后边是本地web管理界面的密码、
+第六行的WG_DEFAULT_DNS的值代表客户端的dns服务器推荐设置为N1的ip
+下边的命令不要带$号。
+```
+
+<pre>
+docker run -d \
+--name=WG \
+-e WG_HOST=n1.pangluyou.xyz \
+-e WG_PORT=12345 \
+-e PASSWORD=123456 \
+-e WG_DEFAULT_DNS=10.10.10.254 \
+-e WG_PERSISTENT_KEEPALIVE=25 \
+-v /mnt/mmcblk2p4/wireguard:/etc/wireguard \
+-p 51820:51820/udp \
+-p 51821:51821/tcp \
+--cap-add=NET_ADMIN \
+--cap-add=SYS_MODULE \
+--sysctl="net.ipv4.conf.all.src_valid_mark=1" \
+--sysctl="net.ipv4.ip_forward=1" \
+--restart unless-stopped \
+weejewel/wg-easy
+</pre>
+
+浏览器输入N1的ip+51821进入管理界面.例：`http://10.10.10.254:51821`.
+
+## 选项
+
+这些选项可以通过 -e KEY="VALUE"在 docker run 命令中设置环境变量来配置.
+
+| Env | Default | Example | Description |
+| - | - | - | - |
+| `PASSWORD` | - | `123456` | 设置后需要密码登录. |
+| `WG_HOST` | - | `vpn.myserver.com` | 动态域名DDNS. |
+| `WG_PORT` | `51820` | `12345` | VPN 服务器的公共UDP端口. WireGuard 将始终在 Docker 容器内进行侦听 51820 端口. |
+| `WG_MTU` | `null` | `1420` | 客户端将使用的 MTU .服务器使用默认的 WG MTU. |
+| `WG_PERSISTENT_KEEPALIVE` | `0` | `25` | 以秒为单位保持“连接”打开的值. |
+| `WG_DEFAULT_ADDRESS` | `10.8.0.x` | `10.6.0.x` | 客户端 IP 地址范围. |
+| `WG_DEFAULT_DNS` | `1.1.1.1` | `8.8.8.8, 8.8.4.4` | 客户端将使用 DNS 服务器. |
+| `WG_ALLOWED_IPS` | `0.0.0.0/0, ::/0` | `192.168.15.0/24, 10.0.1.0/24` | 允许的 IP 客户端. |
+| `WG_POST_UP` | `...` | `iptables ...` | 有关默认值，请参见 [config.js](https://github.com/WeeJeWel/wg-easy/blob/master/src/config.js#L19) . |
+| `WG_POST_DOWN` | `...` | `iptables ...` | 有关默认值，请参见 [config.js](https://github.com/WeeJeWel/wg-easy/blob/master/src/config.js#L26) . |
+
+# 更新
+
+```bash
+docker stop WG
+docker rm WG
+docker pull mlf001/wg-easy:nightly
+```
+
+再次运行 `docker run -d \ ...` 此处省略号代表的是上边38-53行的命令在输入一遍，而不是真的是三个点.
