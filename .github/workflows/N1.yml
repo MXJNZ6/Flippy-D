@@ -20,6 +20,7 @@ jobs:
         include:
           - flippy_name: k5.15
           - flippy_name: k5.18
+          - flippy_name: k5.19
     env:
       FLIPPY_NAME: ${{ matrix.flippy_name }}   
     steps:
