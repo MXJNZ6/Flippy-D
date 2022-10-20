@@ -10,6 +10,6 @@ do
     OS=$(($OS + 1))
 done
 
-KERNEL="5.15.OS"
+KERNEL="5.15.$OS"
 KERNEL_VERSION="$KERNEL-flippy-$VERSION"
 KERNEL_PKG_HOME="/opt/kernel/$KERNEL"
