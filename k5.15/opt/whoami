@@ -1,13 +1,8 @@
 WHOAMI="Akatsuki"
 OPENWRT_VER="R22.11.11"
 DISTRIB_DESCRIPTION="Unicorn"
+OS="74"
 VERSION="78+o"
-OS="73"
-until [ ! -d "/opt/kernel/5.15.$OS" ]
-do
-    let "OS += 1"
-    echo "OS = $OS"
-    echo KERNEL="5.15.$OS"
-    echo KERNEL_VERSION="$KERNEL-flippy-$VERSION"
-    echo KERNEL_PKG_HOME="/opt/kernel/$KERNEL"
-done
+KERNEL="5.15.$OS"
+KERNEL_VERSION="$KERNEL-flippy-$VERSION"
+KERNEL_PKG_HOME="/opt/kernel/$KERNEL"
