@@ -4,7 +4,7 @@ DISTRIB_DESCRIPTION="Unicorn"
 VERSION="78+o"
 OS="73"
 echo $OS
-until [ ! -d "/opt/kernel/5.15.$OS" ]; then
+until [ ! -d "/opt/kernel/5.15.$OS" ]
 do   
     echo $OS   
     OS=$(($OS + 1))
