@@ -3,11 +3,10 @@ OPENWRT_VER="R22.11.11"
 DISTRIB_DESCRIPTION="Unicorn"
 VERSION="78+o"
 OS="73"
-echo $OS
 until [ ! -d "/opt/kernel/5.15.$OS" ]
-do   
-    echo $OS   
+do
     OS=$(($OS + 1))
+    echo $OS
 done
 
 KERNEL="5.15.$OS"
