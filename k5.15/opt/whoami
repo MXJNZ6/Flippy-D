@@ -7,8 +7,7 @@ until [ ! -d "/opt/kernel/5.15.$OS" ]
 do
     OS=$(($OS + 1))
     echo $OS
+    KERNEL="5.15.$OS"
+    KERNEL_VERSION="$KERNEL-flippy-$VERSION"
+    KERNEL_PKG_HOME="/opt/kernel/$KERNEL"
 done
-
-KERNEL="5.15.$OS"
-KERNEL_VERSION="$KERNEL-flippy-$VERSION"
-KERNEL_PKG_HOME="/opt/kernel/$KERNEL"
