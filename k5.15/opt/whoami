@@ -7,7 +7,7 @@ until [ ! -d "/opt/kernel/5.15.$OS" ]
 do
     let "OS += 1"
     echo "OS = $OS"
-    KERNEL="5.15.$OS"
-    KERNEL_VERSION="$KERNEL-flippy-$VERSION"
-    KERNEL_PKG_HOME="/opt/kernel/$KERNEL"
+    echo KERNEL="5.15.$OS"
+    echo KERNEL_VERSION="$KERNEL-flippy-$VERSION"
+    echo KERNEL_PKG_HOME="/opt/kernel/$KERNEL"
 done
