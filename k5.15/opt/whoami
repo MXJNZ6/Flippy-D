@@ -1,8 +1,7 @@
 WHOAMI="Akatsuki"
 OPENWRT_VER="R22.11.11"
 DISTRIB_DESCRIPTION="Unicorn"
-OS="74"
 V="78"
-KERNEL="5.15.$OS"
-KERNEL_VERSION="$KERNEL-flippy-$V+o"
-KERNEL_PKG_HOME="/opt/kernel/$KERNEL"
+K=$(find /opt/openwrt_packit/kernel/ -name "5.15.*" )
+KERNEL_VERSION="$K-flippy-$V+o"
+KERNEL_PKG_HOME="/opt/kernel/$K"
