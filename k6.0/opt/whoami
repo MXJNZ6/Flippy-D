@@ -3,5 +3,5 @@ OPENWRT_VER="R22.11.11"
 DISTRIB_DESCRIPTION="Unicorn"
 V="78"
 K=$(ls /opt/kernel/ | grep -v '5.*' )
-KERNEL_VERSION="$K-flippy-$V+o"
+KERNEL_VERSION="$K-flippy-$V+"
 KERNEL_PKG_HOME="/opt/kernel/$K"
