@@ -3,5 +3,5 @@ OPENWRT_VER="R22.11.11"
 DISTRIB_DESCRIPTION="Unicorn"
 K=$(ls /opt/kernel/ | grep '5.15.*')
 KERNEL_PKG_HOME="/opt/kernel/$K"
-V=$(find /opt/kernel/5.15.* -name "boot*+.tar.gz" | awk -F '[-.]' '{print $8}')
+V=$(find /opt/kernel/5.15.* -name "boot*.tar.gz" | awk -F '[-.]' '{print $8}')
 KERNEL_VERSION="$K-flippy-$V"
