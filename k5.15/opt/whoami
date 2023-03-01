@@ -1,5 +1,5 @@
 WHOAMI="Akatsuki"
-OPENWRT_VER="R22.12.12"
+OPENWRT_VER="R23.3.1"
 DISTRIB_DESCRIPTION="Unicorn"
 # K=$(ls /opt/kernel/ | grep '5.15.*')
 K=$(find /opt/kernel/5.15.* -name "boot*.tar.gz" | awk -F '[-]' 'END{print $2}')
