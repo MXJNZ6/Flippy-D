@@ -37,6 +37,8 @@ jobs:
         git clone https://github.com/unifreq/openwrt_packit
         cd ..
         cp /opt/whoami /opt/openwrt_packit
+        echo "DEVICE_NAME=N1" >> $GITHUB_ENV
+        echo "FILE_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
                 
     - name: Download
       run: |
@@ -99,14 +101,14 @@ jobs:
       uses: actions/upload-artifact@main
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
-        name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        name: "OpenWrt_${{ matrix.flippy_name }}_${{ env.FILE_DATE }}"
         path: ${{ env.FIRMWARE }}
         
     - name: Create release
       id: release
       uses: ncipollo/release-action@v1
       with:
-        name: R${{ env.DATE }} for ${{ env.FILE_NAME }} (${{ matrix.flippy_name }})
+        name: "${{ env.FILE_NAME }}-${{ matrix.flippy_name }}"
         allowUpdates: true
         tag: "${{ env.FILE_NAME }}-${{ matrix.flippy_name }}"
         commit: master
