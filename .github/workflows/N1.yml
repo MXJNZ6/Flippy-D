@@ -57,7 +57,13 @@ jobs:
         sudo -E apt-get -qq install pigz
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean
-    
+
+    - name: Debug before build
+      run: |
+        echo "KERNEL_VERSION=${KERNEL_VERSION}"
+        echo "MODULES_TGZ=/opt/kernel/6.12.41/modules-${KERNEL_VERSION}.tar.gz"
+        ls -l /opt/kernel/6.12.41/modules-*.tar*
+        
     - name: build img
       run: |
         sudo chmod  -R 777 /opt
