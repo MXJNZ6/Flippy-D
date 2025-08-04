@@ -41,7 +41,7 @@ jobs:
     - name: Download
       run: |
         cd /opt/openwrt_packit
-        wget  https://github.com/MXJNZ6/op/releases/download/Aarch64/openwrt-armvirt-64-default-rootfs.tar.gz
+        wget  https://github.com/MXJNZ6/op/releases/download/N1/openwrt-armsr-armv8-generic-rootfs.tar.gz
         
     - name: Check Files
       run: |
