@@ -18,9 +18,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - flippy_name: k5.4
-          - flippy_name: k5.15
-          - flippy_name: k6.1
+          - flippy_name: k6.6
+          - flippy_name: k6.12
     env:
       FLIPPY_NAME: ${{ matrix.flippy_name }}   
     steps:
