@@ -114,9 +114,9 @@ jobs:
         body: |
           This is OpenWrt firmware for N1
           * Firmware information
-          Default IP地址: 192.168.2.22
+          Default IP地址: 10.10.10.25
           Default username: root
-          Default password: 无
+          Default password: 无/password
           Default WIFI name: Phicomm_n1
           Default WIFI password: password
         artifacts: ${{ env.FIRMWARE }}/*
