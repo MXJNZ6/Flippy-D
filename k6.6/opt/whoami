@@ -1,0 +1,7 @@
+WHOAMI="Akatsuki"
+OPENWRT_VER="R25.8.1"
+DISTRIB_DESCRIPTION="Unicorn"
+K=$(find /opt/kernel/6.6.* -name "boot*.tar.gz" | awk -F '[-]' 'END{print $2}')
+KERNEL_PKG_HOME="/opt/kernel/$K"
+V=$(find /opt/kernel/6.6.* -name "boot*.tar.gz" | awk -F '[-]' 'END{print $3"-"$4}')
+KERNEL_VERSION="$K-$V"
