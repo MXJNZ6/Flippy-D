@@ -106,9 +106,9 @@ jobs:
       id: release
       uses: ncipollo/release-action@v1
       with:
-        name: R${{ env.DATE }} for ${{ env.FILE_NAME }}
+        name: R${{ env.DATE }} for ${{ env.FILE_NAME }} (${{ matrix.flippy_name }})
         allowUpdates: true
-        tag: ${{ env.FILE_NAME }}
+        tag: "${{ env.FILE_NAME }}-${{ matrix.flippy_name }}"
         commit: master
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
