@@ -44,18 +44,12 @@ jobs:
         kernel_version: ${{ matrix.kernel_version }}
         kernel_auto: true
         kernel_sign: ${{ matrix.kernel_sign }}
-        output_path: ./compiled_kernel
 
-    - name: Verify Kernel Compilation
+    - name: Extract Kernel Version
       run: |
-        BOOT_FILE=$(ls ./compiled_kernel/boot-*.tar.gz 2>/dev/null | head -n 1)
-        if [[ -z "${BOOT_FILE}" ]]; then
-          echo "错误：未找到内核文件，编译失败！"
-          exit 1
-        fi
+        BOOT_FILE=$(ls ./output/boot-*.tar.gz | head -n 1)
         KERNEL_VERSION=$(basename ${BOOT_FILE} | sed 's/boot-//;s/.tar.gz//')
         echo "KERNEL_VERSION=${KERNEL_VERSION}" >> $GITHUB_ENV
-        echo "内核版本：${KERNEL_VERSION}"
 
     - name: Clone openwrt_packit
       run: |
@@ -65,13 +59,10 @@ jobs:
       run: |
         echo "${{ env.WHOAMI_FIXED }}" > /opt/openwrt_packit/whoami
         echo "KERNEL_VERSION=\"${{ env.KERNEL_VERSION }}\"" >> /opt/openwrt_packit/whoami
-        echo "whoami 内容："
-        cat /opt/openwrt_packit/whoami
 
     - name: Copy All Kernel Files
       run: |
-        COMPILED_DIR=./compiled_kernel
-        sudo cp -r "${COMPILED_DIR}"/* /opt/kernel/
+        sudo cp -r ./output/* /opt/kernel/
 
     - name: Download Rootfs
       run: |
@@ -88,11 +79,9 @@ jobs:
         sudo cp files/openwrt-update-amlogic output/openwrt-update-amlogic
 
     - name: Compress Output
-      id: pigz
       run: |
         cd /opt/openwrt_packit/output
         sudo pigz -9 -p 2 *
-        echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Organize Artifacts
       run: |
@@ -105,7 +94,6 @@ jobs:
           sed "s/{{KERNEL_VERSION}}/${{ env.KERNEL_VERSION }}/g" | \
           sed "s/{{FILE_DATE}}/${{ env.FILE_DATE }}/g")
         echo "FILE_NAME=${FINAL_NAME}" >> $GITHUB_ENV
-        echo "最终命名：${FINAL_NAME}"
 
     - name: Upload Artifact
       uses: actions/upload-artifact@main
