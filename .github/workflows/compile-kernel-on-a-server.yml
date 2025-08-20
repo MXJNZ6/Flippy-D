@@ -17,7 +17,6 @@ on:
         type: choice
         options:
           - unifreq
-          - codesnas
       kernel_version:
         description: "Select kernel version"
         required: false
