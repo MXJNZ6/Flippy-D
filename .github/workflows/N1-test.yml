@@ -1,103 +1,88 @@
-name: Build N1 OpenWrt Firmware-test
+name: Build N1-test
 on:
   repository_dispatch:
   workflow_dispatch:
+    inputs:
+      kernel_version_66:
+        description: "6.6系列内核版本号（如6.6.102）"
+        required: true
+        default: "6.6.102"
+        type: string
+      kernel_version_612:
+        description: "6.12系列内核版本号（如6.12.42）"
+        required: true
+        default: "6.12.42"
+        type: string
 env:
   UPLOAD_FIRMWARE: true
+  UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
-  FILE_NAME_TEMPLATE: "N1-Lean-Flippy-{{KERNEL_VERSION}}-{{FILE_DATE}}"
-  WHOAMI_FIXED: |
-    WHOAMI="Akatsuki"
-    OPENWRT_VER="R25.8.1"
-    DISTRIB_DESCRIPTION="Unicorn"
+  FILE_NAME: openwrt_s905d_n1-lean-flippy
 
 jobs:
   build:
     runs-on: ubuntu-22.04
+    name: Build for ${{ matrix.flippy_name }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - flippy_name: k6.6
-            kernel_series: 6.6.y
+            kernel_version_input: ${{ github.event.inputs.kernel_version_66 }}
           - flippy_name: k6.12
-            kernel_series: 6.12.y
+            kernel_version_input: ${{ github.event.inputs.kernel_version_612 }}
     env:
-      FLIPPY_NAME: ${{ matrix.flippy_name }}   
+      FLIPPY_NAME: ${{ matrix.flippy_name }}
+      KERNEL_VERSION: ${{ matrix.kernel_version_input }}
     steps:
-    - name: 初始化环境与检出代码
-      run: |
+    - name: Checkout
+      uses: actions/checkout@main
+      
+    - name: Initialization environment
+      run: |     
         echo "DATE=$(date "+%Y-%m-%d %H:%M:%S")"  >> $GITHUB_ENV
-        echo "FILE_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
-        sudo apt-get update && sudo apt-get install -y jq pigz
+        echo $PWD
         sudo mkdir -p /opt/kernel
-
-    - name: 克隆openwrt_packit工具
+        cp -r ${FLIPPY_NAME}/opt/* /opt
+        cd /opt
+        git clone https://github.com/unifreq/openwrt_packit
+        cd ..
+        cp /opt/whoami /opt/openwrt_packit
+        echo "DEVICE_NAME=N1" >> $GITHUB_ENV
+        echo "FILE_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
+                
+    - name: Download and extract kernel
       run: |
-        sudo git clone https://github.com/unifreq/openwrt_packit /opt/openwrt_packit
-
-    - name: 下载kernel_flippy标签下的内核（修复jq解析错误）
-      id: download_kernel
+        KERNEL_URL="https://github.com/ophub/kernel/releases/download/kernel_flippy/${KERNEL_VERSION}.tar.gz"
+        echo "开始下载内核: ${KERNEL_URL}"
+        sudo wget -q --show-progress -O /opt/kernel/${KERNEL_VERSION}.tar.gz "${KERNEL_URL}"
+        echo "解压内核到/opt/kernel..."
+        sudo tar -zxf /opt/kernel/${KERNEL_VERSION}.tar.gz -C /opt/kernel/
+        echo "解压后的内核文件列表:"
+        ls -l /opt/kernel/
+                
+    - name: Download rootfs
       run: |
-        # 使用正确的release标签API（releases/tags/而非releases/tag/）
-        RELEASE_URL="https://api.github.com/repos/ophub/kernel/releases/tags/kernel_flippy"
-        
-        # 重试机制获取有效资产数据
-        for i in {1..5}; do
-          # 保存API原始响应用于调试
-          curl -sSL --retry 3 --retry-delay 5 "$RELEASE_URL" > /tmp/release.json
-          # 检查assets字段是否存在且非null
-          ASSETS=$(jq -r 'if .assets != null then .assets[] | .name + "|" + .browser_download_url else empty end' /tmp/release.json)
-          
-          if [ -n "$ASSETS" ] && ! echo "$ASSETS" | grep -q "null"; then
-            echo "第$i次尝试成功获取资产列表"
-            break
-          fi
-          echo "第$i次尝试失败，资产列表为空或包含null，重试中..."
-          sleep 3
-        done
-        
-        # 最终校验资产列表
-        if [ -z "$ASSETS" ] || echo "$ASSETS" | grep -q "null"; then
-          echo "错误：无法从 $RELEASE_URL 获取有效资产列表"
-          echo "API响应内容："
-          cat /tmp/release.json
-          exit 1
-        fi
-        
-        # 匹配指定内核系列的modules文件
-        KERNEL_SERIES="${{ matrix.kernel_series }}"
-        VERSION_PATTERN=$(echo "$KERNEL_SERIES" | sed 's/\.y$//')
-        LATEST_KERNEL=$(echo "$ASSETS" | grep -E "modules-${VERSION_PATTERN}\.[0-9]+\-flippy\-[0-9]+\+\.tar\.gz" | sort -Vr | head -n 1)
-        
-        if [ -z "$LATEST_KERNEL" ]; then
-          echo "错误：在kernel_flippy标签下未找到匹配内核 $VERSION_PATTERN"
-          echo "可用内核列表："
-          echo "$ASSETS" | grep "modules-" | cut -d'|' -f1
-          exit 1
-        fi
-        
-        # 提取下载信息并处理内核文件
-        KERNEL_URL=$(echo "$LATEST_KERNEL" | cut -d'|' -f2)
-        KERNEL_FILENAME=$(echo "$LATEST_KERNEL" | cut -d'|' -f1)
-        KERNEL_VERSION=$(echo "$KERNEL_FILENAME" | sed -E 's/modules-(.*)-flippy-.*/\1/')
-        
-        wget -q --show-progress -O /opt/kernel/"$KERNEL_FILENAME" "$KERNEL_URL"
-        tar -zxf /opt/kernel/"$KERNEL_FILENAME" -C /opt/kernel/
-        rm -f /opt/kernel/"$KERNEL_FILENAME"
-        sudo ln -s /opt/kernel/modules-"$KERNEL_VERSION"-flippy-* /opt/kernel/modules-"$KERNEL_VERSION".tar.gz
-        
-        echo "KERNEL_VERSION=$KERNEL_VERSION" >> $GITHUB_ENV
-        echo "已下载内核：$KERNEL_FILENAME（来自kernel_flippy标签）"
-
-    - name: 准备构建环境
-      run: |
-        echo "${{ env.WHOAMI_FIXED }}" > /opt/openwrt_packit/whoami
-        echo "KERNEL_VERSION=\"${{ env.KERNEL_VERSION }}\"" >> /opt/openwrt_packit/whoami
         cd /opt/openwrt_packit
-        wget -q --show-progress https://github.com/MXJNZ6/op/releases/download/N1/openwrt-armsr-armv8-generic-rootfs.tar.gz
-
-    - name: 构建OpenWrt镜像
+        wget https://github.com/MXJNZ6/op/releases/download/N1/openwrt-armsr-armv8-generic-rootfs.tar.gz
+        
+    - name: Check Files
+      run: |
+        cd /opt/openwrt_packit
+        ls
+        echo "内核目录文件列表:"
+        ls -l /opt/kernel
+                
+    - name: Install dependencies
+      run: |
+        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+        sudo -E apt-get -qq update
+        sudo -E apt-get -qq install xz-utils btrfs-progs gawk zip unzip curl dosfstools uuid-runtime
+        sudo -E apt-get -qq install git git-core pigz
+        sudo -E apt-get -qq autoremove --purge
+        sudo -E apt-get -qq clean
+        
+    - name: Build image
       run: |
         sudo chmod -R 777 /opt
         mkdir /opt/openwrt_packit/tmp
@@ -105,45 +90,68 @@ jobs:
         cd /opt/openwrt_packit
         sudo ./mk_s905d_n1.sh
         sudo cp files/openwrt-update-amlogic output/openwrt-update-amlogic
-        cd output
-        sudo pigz -9 -p 2 *
-        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
-
-    - name: 上传与发布
+        
+    - name: Compress files with pigz
+      id: pigz
       run: |
-        FINAL_NAME=$(echo "${{ env.FILE_NAME_TEMPLATE }}" | \
-          sed "s/{{KERNEL_VERSION}}/${{ env.KERNEL_VERSION }}/g" | \
-          sed "s/{{FILE_DATE}}/${{ env.FILE_DATE }}/g")
-        echo "FILE_NAME=${FINAL_NAME}" >> $GITHUB_ENV
+        sudo chmod -R 777 /opt/openwrt_packit/output
+        cd /opt/openwrt_packit/output
+        sudo pigz -9 -p 2 *
+        echo "status=success" >> $GITHUB_OUTPUT
 
-    - name: 上传制品
+    - name: Check output files
+      run: |
+        cd /opt/openwrt_packit/output
+        ls
+
+    - name: Check disk usage
+      if: (!cancelled())
+      run: df -hT
+      
+    - name: Organize files
+      id: organize
+      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+      run: |
+        cd /opt/openwrt_packit/output
+        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+        echo "status=success" >> $GITHUB_OUTPUT
+        
+    - name: Upload firmware as artifact
       uses: actions/upload-artifact@main
+      if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
-        name: ${{ env.FILE_NAME }}
+        name: "OpenWrt_${{ matrix.flippy_name }}_${{ env.FILE_DATE }}_${{ env.KERNEL_VERSION }}"
         path: ${{ env.FIRMWARE }}
-
-    - name: 创建Release
+        
+    - name: Create release
+      id: release
       uses: ncipollo/release-action@v1
       with:
-        name: ${{ env.FILE_NAME }}
-        tag: ${{ env.FILE_NAME }}
+        name: "${{ env.FILE_NAME }}-${{ matrix.flippy_name }}-${{ env.KERNEL_VERSION }}"
+        allowUpdates: true
+        tag: "${{ env.FILE_NAME }}-${{ matrix.flippy_name }}-${{ env.KERNEL_VERSION }}"
+        commit: master
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
-          OpenWrt 固件 for N1（内核：${{ env.KERNEL_VERSION }}）
-          包含完整内核组件
-          默认登录：192.168.1.1 | root / password
+          This is OpenWrt firmware for N1
+          * Firmware information
+          - Kernel version: ${{ env.KERNEL_VERSION }}
+          - Build date: ${{ env.DATE }}
+          Default IP地址: 192.168.1.1
+          Default username: root
+          Default password: 无/password
+          Default WIFI name: Phicomm_n1
+          Default WIFI password: password
         artifacts: ${{ env.FIRMWARE }}/*
 
-  notify:
+  over:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-    - name: Telegram通知
-      run: |
-        curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" -d \
-        "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}&text=固件编译完成：${{ env.FILE_NAME }}"
+    - name: Telegram notification
+      run: curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}&text=主人，N1盒子OpenWrt系统打包成功啦！"
 
-    - name: 清理旧工作流
+    - name: Delete old workflow runs
       uses: Mattraks/delete-workflow-runs@v2
       with:
         token: ${{ github.token }}
