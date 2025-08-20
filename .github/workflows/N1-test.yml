@@ -33,7 +33,7 @@ jobs:
             kernel_version_input: ${{ github.event.inputs.kernel_version_612 }}
     env:
       FLIPPY_NAME: ${{ matrix.flippy_name }}
-      KERNEL_VERSION: ${{ matrix.kernel_version_input }}
+      KERNEL_VERSION_RAW: ${{ matrix.kernel_version_input }}
     steps:
     - name: Checkout
       uses: actions/checkout@main
@@ -53,11 +53,11 @@ jobs:
                 
     - name: Download kernel
       run: |
-        KERNEL_URL="https://github.com/ophub/kernel/releases/download/kernel_flippy/${KERNEL_VERSION}.tar.gz"
+        KERNEL_URL="https://github.com/ophub/kernel/releases/download/kernel_flippy/${KERNEL_VERSION_RAW}.tar.gz"
         echo "开始下载内核: ${KERNEL_URL}"
-        sudo wget -q --show-progress -O /opt/kernel/${KERNEL_VERSION}.tar.gz "${KERNEL_URL}"
+        sudo wget -q --show-progress -O /opt/kernel/${KERNEL_VERSION_RAW}.tar.gz "${KERNEL_URL}"
         echo "解压内核到/opt/kernel..."
-        sudo tar -zxf /opt/kernel/${KERNEL_VERSION}.tar.gz -C /opt/kernel/ --strip-components=1
+        sudo tar -zxf /opt/kernel/${KERNEL_VERSION_RAW}.tar.gz -C /opt/kernel/ --strip-components=1
         echo "解压后的内核文件列表:"
         ls -l /opt/kernel/
                 
@@ -65,7 +65,6 @@ jobs:
       run: |
         cd /opt/openwrt_packit
         wget https://github.com/MXJNZ6/op/releases/download/N1/openwrt-armsr-armv8-generic-rootfs.tar.gz
-        echo "KERNEL_VERSION=${KERNEL_VERSION}-flippy-93+" >> $GITHUB_ENV
         
     - name: Install dependencies
       run: |
@@ -82,6 +81,20 @@ jobs:
         mkdir /opt/openwrt_packit/tmp
         sudo mount -t tmpfs none /opt/openwrt_packit/tmp
         cd /opt/openwrt_packit
+        
+        # 生成whoami文件
+        echo "生成whoami文件，内容如下："
+        cat << EOF | sudo tee /opt/openwrt_packit/whoami
+        WHOAMI="Akatsuki"
+        OPENWRT_VER="R25.8.1"
+        DISTRIB_DESCRIPTION="Unicorn"
+        KERNEL_VERSION="${KERNEL_VERSION_RAW}-flippy-93+"
+        EOF
+
+        echo "whoami文件内容验证："
+        cat /opt/openwrt_packit/whoami
+        
+        # 执行打包脚本
         sudo ./mk_s905d_n1.sh
         sudo cp files/openwrt-update-amlogic output/openwrt-update-amlogic
         
@@ -114,22 +127,22 @@ jobs:
       uses: actions/upload-artifact@main
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
-        name: "OpenWrt_${{ matrix.flippy_name }}_${{ env.FILE_DATE }}_${{ env.KERNEL_VERSION }}"
+        name: "OpenWrt_${{ matrix.flippy_name }}_${{ env.FILE_DATE }}_${{ env.KERNEL_VERSION_RAW }}-flippy-93+"
         path: ${{ env.FIRMWARE }}
         
     - name: Create release
       id: release
       uses: ncipollo/release-action@v1
       with:
-        name: "${{ env.FILE_NAME }}-${{ matrix.flippy_name }}-${{ env.KERNEL_VERSION }}"
+        name: "${{ env.FILE_NAME }}-${{ matrix.flippy_name }}-${{ env.KERNEL_VERSION_RAW }}-flippy-93+"
         allowUpdates: true
-        tag: "${{ env.FILE_NAME }}-${{ matrix.flippy_name }}-${{ env.KERNEL_VERSION }}"
+        tag: "${{ env.FILE_NAME }}-${{ matrix.flippy_name }}-${{ env.KERNEL_VERSION_RAW }}-flippy-93+"
         commit: master
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
           This is OpenWrt firmware for N1
           * Firmware information
-          - Kernel version: ${{ env.KERNEL_VERSION }}
+          - Kernel version: ${{ env.KERNEL_VERSION_RAW }}-flippy-93+
           - Build date: ${{ env.DATE }}
           Default IP地址: 192.168.1.1
           Default username: root
