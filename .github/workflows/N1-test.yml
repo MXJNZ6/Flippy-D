@@ -19,57 +19,48 @@ jobs:
       matrix:
         include:
           - flippy_name: k6.6
-            kernel_version: 6.6.y
-            kernel_sign: -flippy-93+
+            kernel_series: 6.6.y
           - flippy_name: k6.12
-            kernel_version: 6.12.y
-            kernel_sign: -flippy-93+
+            kernel_series: 6.12.y
     env:
       FLIPPY_NAME: ${{ matrix.flippy_name }}   
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@main
-
-    - name: Initialize Environment
-      run: |     
+    - name: 初始化环境与检出代码
+      run: |
         echo "DATE=$(date "+%Y-%m-%d %H:%M:%S")"  >> $GITHUB_ENV
         echo "FILE_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
+        sudo apt-get update && sudo apt-get install -y jq pigz
         sudo mkdir -p /opt/kernel
 
-    - name: Compile Kernel
-      id: compile_kernel
-      uses: ophub/amlogic-s9xxx-armbian@main
-      with:
-        build_target: kernel
-        kernel_version: ${{ matrix.kernel_version }}
-        kernel_auto: true
-        kernel_sign: ${{ matrix.kernel_sign }}
-
-    - name: Extract Kernel Version
+    - name: 克隆openwrt_packit工具
       run: |
-        BOOT_FILE=$(ls ./output/boot-*.tar.gz | head -n 1)
-        KERNEL_VERSION=$(basename ${BOOT_FILE} | sed 's/boot-//;s/.tar.gz//')
-        echo "KERNEL_VERSION=${KERNEL_VERSION}" >> $GITHUB_ENV
+        sudo git clone https://github.com/unifreq/openwrt_packit /opt/openwrt_packit
 
-    - name: Clone openwrt_packit
+    - name: 下载最新内核
+      id: download_kernel
       run: |
-        cd /opt && git clone https://github.com/unifreq/openwrt_packit
+        RELEASE_URL="https://api.github.com/repos/ophub/kernel/releases/tags/kernel_flippy"
+        ASSETS=$(curl -s $RELEASE_URL | jq -r '.assets[] | .name + "|" + .browser_download_url')
+        KERNEL_SERIES="${{ matrix.kernel_series }}"
+        VERSION_PATTERN=$(echo $KERNEL_SERIES | sed 's/\.y$//')
+        LATEST_KERNEL=$(echo "$ASSETS" | grep -E "${VERSION_PATTERN}\.[0-9]+\.tar\.gz" | sort -Vr | head -n 1)
+        KERNEL_URL=$(echo "$LATEST_KERNEL" | cut -d'|' -f2)
+        KERNEL_FILENAME=$(echo "$LATEST_KERNEL" | cut -d'|' -f1)
+        KERNEL_VERSION=$(echo "$KERNEL_FILENAME" | sed 's/\.tar\.gz//')
+        wget -q --show-progress -O /opt/kernel/$KERNEL_FILENAME $KERNEL_URL
+        tar -zxf /opt/kernel/$KERNEL_FILENAME -C /opt/kernel/
+        rm -f /opt/kernel/$KERNEL_FILENAME
+        echo "KERNEL_VERSION=$KERNEL_VERSION" >> $GITHUB_ENV
+        echo "已下载最新内核: $KERNEL_VERSION"
 
-    - name: Generate whoami File
+    - name: 准备构建环境
       run: |
         echo "${{ env.WHOAMI_FIXED }}" > /opt/openwrt_packit/whoami
         echo "KERNEL_VERSION=\"${{ env.KERNEL_VERSION }}\"" >> /opt/openwrt_packit/whoami
-
-    - name: Copy All Kernel Files
-      run: |
-        sudo cp -r ./output/* /opt/kernel/
-
-    - name: Download Rootfs
-      run: |
         cd /opt/openwrt_packit
         wget -q --show-progress https://github.com/MXJNZ6/op/releases/download/N1/openwrt-armsr-armv8-generic-rootfs.tar.gz
 
-    - name: Build OpenWrt Image
+    - name: 构建OpenWrt镜像
       run: |
         sudo chmod -R 777 /opt
         mkdir /opt/openwrt_packit/tmp
@@ -77,31 +68,24 @@ jobs:
         cd /opt/openwrt_packit
         sudo ./mk_s905d_n1.sh
         sudo cp files/openwrt-update-amlogic output/openwrt-update-amlogic
-
-    - name: Compress Output
-      run: |
-        cd /opt/openwrt_packit/output
+        cd output
         sudo pigz -9 -p 2 *
-
-    - name: Organize Artifacts
-      run: |
-        cd /opt/openwrt_packit/output
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
 
-    - name: Set Final File Name
+    - name: 上传与发布
       run: |
         FINAL_NAME=$(echo "${{ env.FILE_NAME_TEMPLATE }}" | \
           sed "s/{{KERNEL_VERSION}}/${{ env.KERNEL_VERSION }}/g" | \
           sed "s/{{FILE_DATE}}/${{ env.FILE_DATE }}/g")
         echo "FILE_NAME=${FINAL_NAME}" >> $GITHUB_ENV
 
-    - name: Upload Artifact
+    - name: 上传制品
       uses: actions/upload-artifact@main
       with:
         name: ${{ env.FILE_NAME }}
         path: ${{ env.FIRMWARE }}
 
-    - name: Create Release
+    - name: 创建Release
       uses: ncipollo/release-action@v1
       with:
         name: ${{ env.FILE_NAME }}
@@ -117,12 +101,12 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-    - name: Telegram Notification
+    - name: Telegram通知
       run: |
         curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" -d \
         "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}&text=固件编译完成：${{ env.FILE_NAME }}"
 
-    - name: Cleanup Old Runs
+    - name: 清理旧工作流
       uses: Mattraks/delete-workflow-runs@v2
       with:
         token: ${{ github.token }}
