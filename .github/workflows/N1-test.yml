@@ -134,16 +134,14 @@ jobs:
       id: release
       uses: ncipollo/release-action@v1
       with:
-        name: "${{ env.FILE_NAME }}-${{ matrix.flippy_name }}-${{ env.KERNEL_VERSION_RAW }}-flippy-93+"
+        name: "openwrt_s905d_n1-lean-flippy"
         allowUpdates: true
-        tag: "${{ env.FILE_NAME }}-${{ matrix.flippy_name }}-${{ env.KERNEL_VERSION_RAW }}-flippy-93+"
+        tag: "s905d_n1"
         commit: master
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
           This is OpenWrt firmware for N1
           * Firmware information
-          - Kernel version: ${{ env.KERNEL_VERSION_RAW }}-flippy-93+
-          - Build date: ${{ env.DATE }}
           Default IP地址: 192.168.1.1
           Default username: root
           Default password: 无/password
