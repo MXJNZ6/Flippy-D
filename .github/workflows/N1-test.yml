@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       kernel_version_66:
-        description: "6.6系列内核版本号（如6.6.102）"
+        description: "6.6系列内核版本号"
         required: true
         default: "6.6.102"
         type: string
       kernel_version_612:
-        description: "6.12系列内核版本号（如6.12.42）"
+        description: "6.12系列内核版本号"
         required: true
         default: "6.12.42"
         type: string
