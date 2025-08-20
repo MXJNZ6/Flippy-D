@@ -36,32 +36,51 @@ jobs:
       run: |
         sudo git clone https://github.com/unifreq/openwrt_packit /opt/openwrt_packit
 
-    - name: 下载最新内核（适配flippy命名规则）
+    - name: 下载kernel_flippy标签下的内核（精确匹配）
       id: download_kernel
       run: |
+        # 强制使用kernel_flippy标签的API地址
         RELEASE_URL="https://api.github.com/repos/ophub/kernel/releases/tag/kernel_flippy"
-        ASSETS=$(curl -s $RELEASE_URL | jq -r '.assets[] | .name + "|" + .browser_download_url')
-        KERNEL_SERIES="${{ matrix.kernel_series }}"
-        VERSION_PATTERN=$(echo $KERNEL_SERIES | sed 's/\.y$//')
-        LATEST_KERNEL=$(echo "$ASSETS" | grep -E "${VERSION_PATTERN}\.[0-9]+\-flippy\-[0-9]+\+" | grep "modules-" | sort -Vr | head -n 1)
-    
-        if [ -z "$LATEST_KERNEL" ]; then
-          echo "未找到匹配的flippy内核: $VERSION_PATTERN"
+        # 重试机制确保获取资产列表
+        for i in {1..5}; do
+          ASSETS=$(curl -sSL --retry 3 --retry-delay 5 $RELEASE_URL | jq -r '.assets[] | .name + "|" + .browser_download_url')
+          if [ -n "$ASSETS" ] && ! echo "$ASSETS" | grep -q "null"; then
+            break
+          fi
+          echo "第$i次尝试获取kernel_flippy资产失败，重试中..."
+          sleep 3
+        done
+        
+        # 检查资产列表有效性
+        if [ -z "$ASSETS" ] || echo "$ASSETS" | grep -q "null"; then
+          echo "错误：无法获取kernel_flippy标签下的资产列表"
           exit 1
         fi
-    
+        
+        KERNEL_SERIES="${{ matrix.kernel_series }}"
+        VERSION_PATTERN=$(echo $KERNEL_SERIES | sed 's/\.y$//')
+        # 仅匹配kernel_flippy下的modules文件（格式：modules-6.12.42-flippy-93+.tar.gz）
+        LATEST_KERNEL=$(echo "$ASSETS" | grep -E "^modules-${VERSION_PATTERN}\.[0-9]+\-flippy\-[0-9]+\+\.tar\.gz\|" | sort -Vr | head -n 1)
+        
+        if [ -z "$LATEST_KERNEL" ]; then
+          echo "错误：在kernel_flippy标签下未找到匹配内核 $VERSION_PATTERN"
+          echo "可用内核列表："
+          echo "$ASSETS" | grep "modules-" | cut -d'|' -f1
+          exit 1
+        fi
+        
         KERNEL_URL=$(echo "$LATEST_KERNEL" | cut -d'|' -f2)
         KERNEL_FILENAME=$(echo "$LATEST_KERNEL" | cut -d'|' -f1)
         KERNEL_VERSION=$(echo "$KERNEL_FILENAME" | sed -E 's/modules-(.*)-flippy-.*/\1/')
-    
+        
+        # 下载并处理内核文件
         wget -q --show-progress -O /opt/kernel/$KERNEL_FILENAME $KERNEL_URL
         tar -zxf /opt/kernel/$KERNEL_FILENAME -C /opt/kernel/
         rm -f /opt/kernel/$KERNEL_FILENAME
-    
         sudo ln -s /opt/kernel/modules-$KERNEL_VERSION-flippy-* /opt/kernel/modules-$KERNEL_VERSION.tar.gz
-    
+        
         echo "KERNEL_VERSION=$KERNEL_VERSION" >> $GITHUB_ENV
-        echo "已下载并链接内核: $KERNEL_FILENAME -> modules-$KERNEL_VERSION.tar.gz"
+        echo "已下载内核：$KERNEL_FILENAME（来自kernel_flippy标签）"
 
     - name: 准备构建环境
       run: |
