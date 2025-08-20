@@ -42,12 +42,13 @@ jobs:
       run: |     
         echo "DATE=$(date "+%Y-%m-%d %H:%M:%S")"  >> $GITHUB_ENV
         echo $PWD
+        echo "WHOAMI=Akatsuki" >> $GITHUB_ENV
+        echo "OPENWRT_VER=R25.8.1" >> $GITHUB_ENV
+        echo "DISTRIB_DESCRIPTION=Unicorn" >> $GITHUB_ENV
+        echo "KERNEL_VERSION=${KERNEL_VERSION}-flippy-93+" >> $GITHUB_ENV
         sudo mkdir -p /opt/kernel
-        cp -r ${FLIPPY_NAME}/opt/* /opt
         cd /opt
         git clone https://github.com/unifreq/openwrt_packit
-        cd ..
-        cp /opt/whoami /opt/openwrt_packit
         echo "DEVICE_NAME=N1" >> $GITHUB_ENV
         echo "FILE_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
                 
@@ -72,7 +73,6 @@ jobs:
         ls
         echo "内核目录文件列表:"
         ls -l /opt/kernel
-        echo "KERNEL_VERSION=${KERNEL_VERSION}-flippy-93+" >> $GITHUB_ENV
         
     - name: Install dependencies
       run: |
