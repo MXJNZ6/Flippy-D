@@ -45,7 +45,6 @@ jobs:
         echo "WHOAMI=Akatsuki" >> $GITHUB_ENV
         echo "OPENWRT_VER=R25.8.1" >> $GITHUB_ENV
         echo "DISTRIB_DESCRIPTION=Unicorn" >> $GITHUB_ENV
-        echo "KERNEL_VERSION=${KERNEL_VERSION}-flippy-93+" >> $GITHUB_ENV
         sudo mkdir -p /opt/kernel
         cd /opt
         git clone https://github.com/unifreq/openwrt_packit
@@ -66,13 +65,7 @@ jobs:
       run: |
         cd /opt/openwrt_packit
         wget https://github.com/MXJNZ6/op/releases/download/N1/openwrt-armsr-armv8-generic-rootfs.tar.gz
-        
-    - name: Check Files
-      run: |
-        cd /opt/openwrt_packit
-        ls
-        echo "内核目录文件列表:"
-        ls -l /opt/kernel
+        echo "KERNEL_VERSION=${KERNEL_VERSION}-flippy-93+" >> $GITHUB_ENV
         
     - name: Install dependencies
       run: |
