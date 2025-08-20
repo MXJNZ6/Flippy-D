@@ -88,6 +88,7 @@ jobs:
         mkdir /opt/openwrt_packit/tmp
         sudo mount -t tmpfs none /opt/openwrt_packit/tmp
         cd /opt/openwrt_packit
+        echo "KERNEL_VERSION=${KERNEL_VERSION}-flippy-93+" >> $GITHUB_ENV
         sudo ./mk_s905d_n1.sh
         sudo cp files/openwrt-update-amlogic output/openwrt-update-amlogic
         
