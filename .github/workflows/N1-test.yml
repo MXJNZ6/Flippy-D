@@ -42,9 +42,6 @@ jobs:
       run: |     
         echo "DATE=$(date "+%Y-%m-%d %H:%M:%S")"  >> $GITHUB_ENV
         echo $PWD
-        echo "WHOAMI=Akatsuki" >> $GITHUB_ENV
-        echo "OPENWRT_VER=R25.8.1" >> $GITHUB_ENV
-        echo "DISTRIB_DESCRIPTION=Unicorn" >> $GITHUB_ENV
         sudo mkdir -p /opt/kernel
         cd /opt
         git clone https://github.com/unifreq/openwrt_packit
