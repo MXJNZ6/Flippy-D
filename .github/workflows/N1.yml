@@ -83,10 +83,13 @@ jobs:
 
           echo "下载内核：$kernel_url"
 
-          sudo wget \
+          curl \
             --fail \
-            --show-progress \
-            -O "$kernel_archive" \
+            --location \
+            --show-error \
+            --retry 3 \
+            --retry-delay 5 \
+            --output "$kernel_archive" \
             "$kernel_url"
 
           echo "验证内核压缩包..."
@@ -150,10 +153,13 @@ jobs:
 
           echo "下载 rootfs：$ROOTFS_URL"
 
-          wget \
+          curl \
             --fail \
-            --show-progress \
-            -O "$rootfs_file" \
+            --location \
+            --show-error \
+            --retry 3 \
+            --retry-delay 5 \
+            --output "$rootfs_file" \
             "$ROOTFS_URL"
 
           test -s "$rootfs_file"
