@@ -236,7 +236,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: ncipollo/release-action@v1
         with:
-          name: openwrt_s905d_n1-lean-flippy
+          name: openwrt_s905d_n1-imm-flippy
           allowUpdates: true
           tag: s905d_n1
           commit: master
