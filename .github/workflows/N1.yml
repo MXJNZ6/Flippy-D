@@ -236,13 +236,16 @@ jobs:
         if: ${{ !cancelled() }}
         uses: ncipollo/release-action@v1
         with:
-          name: openwrt_s905d_n1-imm-flippy
+          name: openwrt_s905d_n1-${{ matrix.flippy_name }}
           allowUpdates: true
-          tag: s905d_n1
+          removeArtifacts: true
+          tag: s905d_n1-${{ matrix.flippy_name }}
           commit: master
           token: ${{ secrets.GITHUB_TOKEN }}
           body: |
             This is OpenWrt firmware for N1
+
+            Kernel series: ${{ matrix.flippy_name }}
 
             * Firmware information
             Default IP地址: 10.10.10.254
