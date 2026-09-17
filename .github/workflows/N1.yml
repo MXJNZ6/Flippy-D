@@ -1,4 +1,5 @@
 name: Build N1
+
 on:
   repository_dispatch:
   workflow_dispatch:
@@ -13,6 +14,7 @@ on:
         required: true
         default: "6.18.52"
         type: string
+
 env:
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
@@ -23,6 +25,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     name: Build for ${{ matrix.flippy_name }}
+
     strategy:
       fail-fast: false
       matrix:
@@ -31,132 +34,273 @@ jobs:
             kernel_version_input: ${{ github.event.inputs.kernel_version_612 }}
           - flippy_name: k6.18
             kernel_version_input: ${{ github.event.inputs.kernel_version_618 }}
+
     env:
       FLIPPY_NAME: ${{ matrix.flippy_name }}
       KERNEL_VERSION_RAW: ${{ matrix.kernel_version_input }}
+
     steps:
-    - name: Checkout
-      uses: actions/checkout@main
-      
-    - name: Initialization environment
-      run: |     
-        echo "DATE=$(date "+%Y-%m-%d %H:%M:%S")"  >> $GITHUB_ENV
-        echo $PWD
-        sudo mkdir -p /opt/kernel
-        cd /opt
-        git clone https://github.com/unifreq/openwrt_packit
-        echo "DEVICE_NAME=N1" >> $GITHUB_ENV
-        echo "FILE_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
-                
-    - name: Download kernel
-      run: |
-        KERNEL_URL="https://github.com/ophub/kernel/releases/download/kernel_flippy/${KERNEL_VERSION_RAW}.tar.gz"
-        echo "开始下载内核: ${KERNEL_URL}"
-        sudo wget -q --show-progress -O /opt/kernel/${KERNEL_VERSION_RAW}.tar.gz "${KERNEL_URL}"
-        echo "解压内核到/opt/kernel..."
-        sudo tar -zxf /opt/kernel/${KERNEL_VERSION_RAW}.tar.gz -C /opt/kernel/ --strip-components=1
-        echo "解压后的内核文件列表:"
-        ls -l /opt/kernel/
-                
-    - name: Download rootfs
-      run: |
-        cd /opt/openwrt_packit
-        wget https://github.com/MXJNZ6/op/releases/download/N1/immortalwrt-armsr-armv8-generic-rootfs.tar.gz
-        
-    - name: Install dependencies
-      run: |
-        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
-        sudo -E apt-get -qq update
-        sudo -E apt-get -qq install xz-utils btrfs-progs gawk zip unzip curl dosfstools uuid-runtime
-        sudo -E apt-get -qq install git git-core pigz
-        sudo -E apt-get -qq autoremove --purge
-        sudo -E apt-get -qq clean
-        
-    - name: Build image
-      run: |
-        sudo chmod -R 777 /opt
-        mkdir /opt/openwrt_packit/tmp
-        sudo mount -t tmpfs none /opt/openwrt_packit/tmp
-        cd /opt/openwrt_packit
-        
-        # 生成whoami文件
-        echo "生成whoami文件，内容如下："
-        cat << EOF | sudo tee /opt/openwrt_packit/whoami
-        WHOAMI="Akatsuki"
-        OPENWRT_VER="R26.10.1"
-        DISTRIB_DESCRIPTION="Unicorn"
-        KERNEL_VERSION="${KERNEL_VERSION_RAW}-flippy-95+"
-        EOF
+      - name: Checkout
+        uses: actions/checkout@main
 
-        echo "whoami文件内容验证："
-        cat /opt/openwrt_packit/whoami
-        
-        # 执行打包脚本
-        sudo ./mk_s905d_n1.sh
-        sudo cp files/openwrt-update-amlogic output/openwrt-update-amlogic
-        
-    - name: Compress files with pigz
-      id: pigz
-      run: |
-        sudo chmod -R 777 /opt/openwrt_packit/output
-        cd /opt/openwrt_packit/output
-        sudo pigz -9 -p 2 *
-        echo "status=success" >> $GITHUB_OUTPUT
+      - name: Initialization environment
+        shell: bash
+        run: |
+          set -euo pipefail
 
-    - name: Check output files
-      run: |
-        cd /opt/openwrt_packit/output
-        ls
+          echo "DATE=$(date '+%Y-%m-%d %H:%M:%S')" >> "$GITHUB_ENV"
+          echo "DEVICE_NAME=N1" >> "$GITHUB_ENV"
+          echo "FILE_DATE=$(date +%Y%m%d)" >> "$GITHUB_ENV"
 
-    - name: Check disk usage
-      if: (!cancelled())
-      run: df -hT
-      
-    - name: Organize files
-      id: organize
-      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
-      run: |
-        cd /opt/openwrt_packit/output
-        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
-        echo "status=success" >> $GITHUB_OUTPUT
-        
-    - name: Upload firmware as artifact
-      uses: actions/upload-artifact@main
-      if: steps.organize.outputs.status == 'success' && !cancelled()
-      with:
-        name: "OpenWrt_${{ matrix.flippy_name }}_${{ env.FILE_DATE }}_${{ env.KERNEL_VERSION_RAW }}-flippy-93+"
-        path: ${{ env.FIRMWARE }}
-        
-    - name: Create release
-      id: release
-      uses: ncipollo/release-action@v1
-      with:
-        name: "openwrt_s905d_n1-lean-flippy"
-        allowUpdates: true
-        tag: "s905d_n1"
-        commit: master
-        token: ${{ secrets.GITHUB_TOKEN }}
-        body: |
-          This is OpenWrt firmware for N1
-          * Firmware information
-          Default IP地址: 10.10.10.254
-          Default username: root
-          Default password: 无/password
-          Default WIFI name: Phicomm_n1
-          Default WIFI password: password
-        artifacts: ${{ env.FIRMWARE }}/*
+          sudo mkdir -p /opt/kernel
+
+          cd /opt
+          git clone https://github.com/unifreq/openwrt_packit
+
+      - name: Download kernel
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          kernel_archive="/opt/kernel/${KERNEL_VERSION_RAW}.tar.gz"
+          kernel_url="https://github.com/ophub/kernel/releases/download/kernel_flippy/${KERNEL_VERSION_RAW}.tar.gz"
+
+          echo "开始下载内核: ${kernel_url}"
+
+          sudo wget \
+            --fail \
+            --show-progress \
+            -O "${kernel_archive}" \
+            "${kernel_url}"
+
+          echo "检查内核压缩包..."
+          sudo tar -tzf "${kernel_archive}" >/dev/null
+
+          echo "解压内核到 /opt/kernel..."
+          sudo tar \
+            -zxf "${kernel_archive}" \
+            -C /opt/kernel/ \
+            --strip-components=1
+
+          echo "解压后的内核文件列表:"
+          sudo ls -lah /opt/kernel
+
+      - name: Detect kernel version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "检测实际内核文件名..."
+
+          module_file="$(
+            find /opt/kernel \
+              -maxdepth 1 \
+              -type f \
+              -name "modules-${KERNEL_VERSION_RAW}-flippy-*.tar.gz" \
+              -print -quit
+          )"
+
+          if [ -z "${module_file}" ]; then
+            echo "错误：没有找到 modules 文件"
+            sudo find /opt/kernel -maxdepth 1 -type f -printf '%f\n' | sort
+            exit 1
+          fi
+
+          module_name="$(basename "${module_file}")"
+          detected_kernel_version="${module_name#modules-}"
+          detected_kernel_version="${detected_kernel_version%.tar.gz}"
+
+          echo "检测到 modules 文件: ${module_name}"
+          echo "检测到实际内核版本: ${detected_kernel_version}"
+
+          # 验证同一版本的 boot 和 dtb 文件
+          boot_file="/opt/kernel/boot-${detected_kernel_version}.tar.gz"
+          dtb_file="/opt/kernel/dtb-amlogic-${detected_kernel_version}.tar.gz"
+
+          if [ ! -f "${boot_file}" ]; then
+            echo "错误：缺少 boot 文件:"
+            echo "${boot_file}"
+            exit 1
+          fi
+
+          if [ ! -f "${dtb_file}" ]; then
+            echo "错误：缺少 dtb 文件:"
+            echo "${dtb_file}"
+            exit 1
+          fi
+
+          echo "KERNEL_VERSION=${detected_kernel_version}" >> "$GITHUB_ENV"
+
+      - name: Download rootfs
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cd /opt/openwrt_packit
+
+          rootfs_url="https://github.com/MXJNZ6/op/releases/download/N1/immortalwrt-armsr-armv8-generic-rootfs.tar.gz"
+          rootfs_file="openwrt-armsr-armv8-generic-rootfs.tar.gz"
+
+          echo "下载 rootfs:"
+          echo "${rootfs_url}"
+
+          wget \
+            --fail \
+            --show-progress \
+            -O "${rootfs_file}" \
+            "${rootfs_url}"
+
+          test -s "${rootfs_file}"
+
+          echo "rootfs 文件:"
+          ls -lh "${rootfs_file}"
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          sudo rm -rf \
+            /etc/apt/sources.list.d/* \
+            /usr/share/dotnet \
+            /usr/local/lib/android \
+            /opt/ghc
+
+          sudo -E apt-get -qq update
+
+          sudo -E apt-get -qq install \
+            xz-utils \
+            btrfs-progs \
+            gawk \
+            zip \
+            unzip \
+            curl \
+            dosfstools \
+            uuid-runtime \
+            git \
+            git-core \
+            pigz
+
+          sudo -E apt-get -qq autoremove --purge
+          sudo -E apt-get -qq clean
+
+      - name: Build image
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          sudo chmod -R 777 /opt
+
+          mkdir -p /opt/openwrt_packit/tmp
+          sudo mount -t tmpfs none /opt/openwrt_packit/tmp
+
+          cd /opt/openwrt_packit
+
+          echo "当前内核版本: ${KERNEL_VERSION}"
+          echo "检查内核文件..."
+
+          test -f "/opt/kernel/modules-${KERNEL_VERSION}.tar.gz"
+          test -f "/opt/kernel/boot-${KERNEL_VERSION}.tar.gz"
+          test -f "/opt/kernel/dtb-amlogic-${KERNEL_VERSION}.tar.gz"
+          test -f "/opt/openwrt_packit/openwrt-armsr-armv8-generic-rootfs.tar.gz"
+
+          echo "生成 whoami 文件..."
+
+          cat << EOF | sudo tee /opt/openwrt_packit/whoami
+          WHOAMI="Akatsuki"
+          OPENWRT_VER="R26.10.1"
+          DISTRIB_DESCRIPTION="Unicorn"
+          KERNEL_VERSION="${KERNEL_VERSION}"
+          EOF
+
+          echo "whoami 文件内容:"
+          cat /opt/openwrt_packit/whoami
+
+          sudo ./mk_s905d_n1.sh
+
+          sudo cp \
+            files/openwrt-update-amlogic \
+            output/openwrt-update-amlogic
+
+      - name: Compress files with pigz
+        id: pigz
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          sudo chmod -R 777 /opt/openwrt_packit/output
+
+          cd /opt/openwrt_packit/output
+          sudo pigz -9 -p 2 *
+
+          echo "status=success" >> "$GITHUB_OUTPUT"
+
+      - name: Check output files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cd /opt/openwrt_packit/output
+          ls -lah
+
+      - name: Check disk usage
+        if: (!cancelled())
+        run: df -hT
+
+      - name: Organize files
+        id: organize
+        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cd /opt/openwrt_packit/output
+
+          echo "FIRMWARE=$PWD" >> "$GITHUB_ENV"
+          echo "status=success" >> "$GITHUB_OUTPUT"
+
+      - name: Upload firmware as artifact
+        uses: actions/upload-artifact@main
+        if: steps.organize.outputs.status == 'success' && !cancelled()
+        with:
+          name: "OpenWrt_${{ matrix.flippy_name }}_${{ env.FILE_DATE }}_${{ env.KERNEL_VERSION_RAW }}"
+          path: ${{ env.FIRMWARE }}
+
+      - name: Create release
+        id: release
+        uses: ncipollo/release-action@v1
+        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+        with:
+          name: "openwrt_s905d_n1-lean-flippy"
+          allowUpdates: true
+          tag: "s905d_n1"
+          commit: master
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+            This is OpenWrt firmware for N1
+
+            * Firmware information
+            Default IP地址: 10.10.10.254
+            Default username: root
+            Default password: 无/password
+            Default WIFI name: Phicomm_n1
+            Default WIFI password: password
+          artifacts: ${{ env.FIRMWARE }}/*
 
   over:
     needs: [build]
     runs-on: ubuntu-latest
-    steps:
-    - name: Telegram notification
-      run: curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}&text=主人，N1盒子OpenWrt系统打包成功啦！"
 
-    - name: Delete old workflow runs
-      uses: Mattraks/delete-workflow-runs@v2
-      with:
-        token: ${{ github.token }}
-        repository: ${{ github.repository }}
-        retain_days: 0
-        keep_minimum_runs: 0
+    steps:
+      - name: Telegram notification
+        run: |
+          curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}&text=主人，N1盒子OpenWrt系统打包成功啦！"
+
+      - name: Delete old workflow runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 0
